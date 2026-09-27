@@ -234,7 +234,3 @@ Precifico/
 ```
 
 ---
-
-## 🤝 Dúvidas e Contribuições
-
-Sinta-se à vontade para abrir uma *Issue* ou enviar um *Pull Request* caso queira contribuir com melhorias para o sistema.
