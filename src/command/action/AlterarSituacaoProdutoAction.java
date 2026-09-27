@@ -13,7 +13,7 @@ public class AlterarSituacaoProdutoAction implements ICommand {
 
     @Override
     public String executar(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false); //retorna sessão se existir sem criar outra
         if (session == null || session.getAttribute("vendedorLogado") == null) {
             request.setAttribute("msgErro", "Acesso restrito. Faça login para continuar.");
             return "login.jsp";

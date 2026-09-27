@@ -37,10 +37,6 @@ public class Produto {
         return codigoProduto;
     }
 
-    public void setCodigoProduto(String codigoProduto) {
-        this.codigoProduto = codigoProduto;
-    }
-
     public String getNome() {
         return nome;
     }
@@ -51,10 +47,6 @@ public class Produto {
 
     public String getDescricao() {
         return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
     }
 
     public String getImagem() {

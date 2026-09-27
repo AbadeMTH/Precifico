@@ -58,8 +58,13 @@
         <div class="painel">
             <h2>Dados Gerais do Produto</h2>
             <div style="text-align: center; margin-bottom: 20px;">
-                <img src="<%= produto.getImagem() %>" alt="<%= produto.getNome() %>" class="imagem-detalhe" 
-                     onerror="this.src='https://via.placeholder.com/400x250?text=Sem+Foto'">
+                <% 
+                    String urlFotoDetalhe = (produto.getImagem() != null && !produto.getImagem().trim().isEmpty()) 
+                            ? produto.getImagem() 
+                            : "img/sem-foto.jpg"; 
+                %>
+                <img src="<%= urlFotoDetalhe %>" alt="<%= produto.getNome() %>" class="imagem-detalhe" 
+                     onerror="this.onerror=null; this.src='img/sem-foto.jpg';">
             </div>
 
             <div class="campos" style="grid-template-columns: 1fr;">

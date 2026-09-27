@@ -49,7 +49,7 @@ public class CadastrarProdutoAction implements ICommand {
                 return "formulario_produto.jsp";
             }
 
-            // Criação da precificação 1:1 e do produto via Builder
+            // cria precificação e atribui a um produto (1:1)
             Precificacao precificacao = new Precificacao(valorVenda, custo);
             Produto produto = new ProdutoBuilder()
                     .comCodigoProduto(codigoProduto.trim())

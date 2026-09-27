@@ -1,12 +1,17 @@
+CREATE DATABASE IF NOT EXISTS precifico;
+
 USE precifico;
 
--- Adiciona novas colunas na tabela vendedores se já existir
-ALTER TABLE vendedores 
-    ADD COLUMN idade INT NULL,
-    ADD COLUMN endereco VARCHAR(200) NULL,
-    ADD COLUMN cpf VARCHAR(14) NULL;
+CREATE TABLE IF NOT EXISTS vendedores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL,
+    idade INT,
+    endereco VARCHAR(200),
+    cpf VARCHAR(14)
+);
 
--- Tabela de Produtos (1:N com Vendedores)
 CREATE TABLE IF NOT EXISTS produtos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codigo_produto VARCHAR(50) NOT NULL,
@@ -19,7 +24,6 @@ CREATE TABLE IF NOT EXISTS produtos (
         REFERENCES vendedores(id) ON DELETE CASCADE
 );
 
--- Tabela de Precificações (1:1 com Produtos)
 CREATE TABLE IF NOT EXISTS precificacoes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_produto INT NOT NULL UNIQUE,

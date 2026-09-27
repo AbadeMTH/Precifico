@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Padrão Factory Method / Singleton para obtenção da conexão com o banco de dados MySQL
- */
 public class FabricaConexao {
+    //atributos static final para que sejam imutaveis e que o metodo getConexao possa utilizar
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/precifico";
     private static final String USUARIO = "root";

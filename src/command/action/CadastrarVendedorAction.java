@@ -64,7 +64,7 @@ public class CadastrarVendedorAction implements ICommand {
 
         try {
             vendedorDAO.cadastrar(vendedor);
-            // Busca o vendedor recém-cadastrado para ter o ID preenchido na sessão
+            // pega o vendedor cadastrado recentemente para ter o ID preenchido na sessao
             Vendedor vendedorSalvo = vendedorDAO.consultarPorEmail(filtroEmail);
             request.getSession(true).setAttribute("vendedorLogado", vendedorSalvo != null ? vendedorSalvo : vendedor);
             request.setAttribute("msgSucesso", "Bem-vindo, " + vendedor.getNome() + "! Cadastro realizado com sucesso.");

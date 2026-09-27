@@ -32,7 +32,6 @@ public class EntrarVendedorAction implements ICommand {
             request.setAttribute("msgSucesso", "Login efetuado com sucesso! Olá, " + vendedor.getNome() + ".");
             return new ConsultarTodosProdutoAction().executar(request, response);
         } else {
-            // RNF01: O usuário não poderá fazer login com credenciais inválidas
             request.setAttribute("msgErro", "E-mail ou senha inválidos. Verifique suas credenciais.");
             return "login.jsp";
         }

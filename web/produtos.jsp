@@ -57,7 +57,6 @@
         <% if (listaProdutos.isEmpty()) { %>
             <div class="painel-vazio">
                 <h2 style="margin-bottom: 8px;">Nenhum produto cadastrado ainda</h2>
-                <p>Cadastre seu primeiro produto para começar a calcular preços e gerenciar suas vendas.</p>
                 <a href="formulario_produto.jsp" class="botao botao-primario" style="margin-top: 10px; text-decoration:none;">Cadastrar primeiro produto →</a>
             </div>
         <% } else { %>
@@ -86,7 +85,13 @@
                         %>
                         <tr>
                             <td>
-                                <img src="<%= p.getImagem() %>" alt="<%= p.getNome() %>" class="miniatura" onerror="this.src='https://via.placeholder.com/54?text=Sem+Foto'">
+                                <% 
+                                    String urlFoto = (p.getImagem() != null && !p.getImagem().trim().isEmpty()) 
+                                            ? p.getImagem() 
+                                            : "img/sem-foto.jpg"; 
+                                %>
+                                <img src="<%= urlFoto %>" alt="<%= p.getNome() %>" class="miniatura" 
+                                     onerror="this.onerror=null; this.src='img/sem-foto.jpg';">
                             </td>
                             <td>
                                 <strong><%= p.getCodigoProduto() %></strong>

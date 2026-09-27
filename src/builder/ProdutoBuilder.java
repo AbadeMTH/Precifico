@@ -4,10 +4,6 @@ import model.Precificacao;
 import model.Produto;
 import model.Vendedor;
 
-/**
- * Padrão Builder com Interface Fluente para construção de Produto
- * Conforme estudado em Aula06 - Builder (Builder_InterfaceFluente)
- */
 public class ProdutoBuilder {
     private int id;
     private String codigoProduto;
@@ -55,11 +51,6 @@ public class ProdutoBuilder {
 
     public ProdutoBuilder comPrecificacao(Precificacao precificacao) {
         this.precificacao = precificacao;
-        return this;
-    }
-
-    public ProdutoBuilder comPrecificacao(double valorVenda, double custoProduto) {
-        this.precificacao = new Precificacao(valorVenda, custoProduto);
         return this;
     }
 

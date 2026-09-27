@@ -22,6 +22,7 @@ public class ConsultarTodosProdutoAction implements ICommand {
 
         Vendedor vendedorLogado = (Vendedor) session.getAttribute("vendedorLogado");
         ProdutoDAO produtoDAO = new ProdutoDAO();
+        // consultar todos no sistema tem nome de consultarPorVendedor
         List<Produto> listaProdutos = produtoDAO.consultarPorVendedor(vendedorLogado);
 
         request.setAttribute("listaProdutos", listaProdutos);

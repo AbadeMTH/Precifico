@@ -252,6 +252,8 @@
             $('venda').value = precoSugeridoAtual.toFixed(2);
             simularPrecificacao();
         }
+    });
+
     // Executa a simulação inicial ao abrir a tela
     simularPrecificacao();
 </script>

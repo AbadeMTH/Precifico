@@ -24,7 +24,6 @@ public class Precificacao {
         this.lucro = calcularLucro();
     }
 
-    // Métodos de instância para cálculo e regras de negócio
     public double calcularLucro() {
         return Math.round((this.valorVenda - this.custoProduto) * 100.0) / 100.0;
     }
@@ -61,10 +60,6 @@ public class Precificacao {
         } else {
             return "Atenção: o preço está muito acima da sugestão.";
         }
-    }
-
-    public void recalcularLucro() {
-        this.lucro = calcularLucro();
     }
 
     public int getId() {

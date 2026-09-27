@@ -39,7 +39,6 @@ public class ConsultarPorIdProdutoAction implements ICommand {
             return new ConsultarTodosProdutoAction().executar(request, response);
         }
 
-        // RNF04: O usuário não poderá consultar ou editar dados de outro usuário
         if (produto.getVendedor() == null || produto.getVendedor().getId() != vendedorLogado.getId()) {
             request.setAttribute("msgErro", "Acesso não autorizado ao produto solicitado.");
             return new ConsultarTodosProdutoAction().executar(request, response);

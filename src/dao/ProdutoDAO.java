@@ -33,7 +33,7 @@ public class ProdutoDAO {
         prod.setId(idGerado);
         con.close();
 
-        // Salva a precificação
+        // salva no banco a precificacao do produto
         prod.getPrecificacao().setIdProduto(idGerado);
         new PrecificacaoDAO().cadastrar(prod.getPrecificacao());
     }
@@ -51,7 +51,7 @@ public class ProdutoDAO {
         comando.execute();
         con.close();
 
-        // Atualiza a precificação
+        // atualiza a precificacao do produto
         prod.getPrecificacao().setIdProduto(prod.getId());
         new PrecificacaoDAO().atualizar(prod.getPrecificacao());
     }
@@ -102,6 +102,7 @@ public class ProdutoDAO {
         return p;
     }
 
+    // metodo consultar todos
     public List<Produto> consultarPorVendedor(Vendedor vendedor) throws ClassNotFoundException, SQLException {
         Connection con = FabricaConexao.getConexao();
         PreparedStatement comando = con.prepareStatement(

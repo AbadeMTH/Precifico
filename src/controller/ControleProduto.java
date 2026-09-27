@@ -9,10 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * Controller Servlet (Front Controller do MVC para Produtos)
- * Aplicação do padrão Command via instanciação dinâmica (Reflection), conforme CRUD_WEB_MVC_DAO
- */
 @WebServlet(name = "ControleProduto", urlPatterns = {"/ControleProduto", "/produto"})
 public class ControleProduto extends HttpServlet {
 
