@@ -1,0 +1,374 @@
+:root {
+    --cor-marca: #316450;
+    --cor-marca-realce: #264e3e;
+    --cor-texto: #20352e;
+    --cor-atenuada: #68766f;
+    --cor-borda: #dce4de;
+    --cor-fundo: #f4f6f2;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+    font: 15px/1.5 Arial, sans-serif;
+}
+
+button, input, textarea, select {
+    font: inherit;
+}
+
+button, .botao {
+    cursor: pointer;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 11px 18px;
+    background: white;
+    color: var(--cor-texto);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+button:hover, .botao:hover {
+    filter: brightness(.96);
+}
+
+button:focus-visible, input:focus, textarea:focus, select:focus {
+    outline: 3px solid #a8cbbb;
+    outline-offset: 2px;
+}
+
+.primario, .botao-primario {
+    background: var(--cor-marca);
+    color: white;
+    border-color: var(--cor-marca);
+}
+
+.primario:hover, .botao-primario:hover {
+    background: var(--cor-marca-realce);
+    color: white;
+}
+
+.botao-perigo {
+    background: #fbe8e4;
+    color: #9a382c;
+    border-color: #f3cbc4;
+}
+
+.botao-perigo:hover {
+    background: #f8d5cd;
+}
+
+.botao-pequeno {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+header {
+    background: white;
+    border-bottom: 1px solid var(--cor-borda);
+    padding: 18px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cabecalho-usuario {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+}
+
+.logotipo {
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--cor-texto);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+main {
+    max-width: 1160px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+.sobretitulo {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: var(--cor-marca);
+}
+
+h1 {
+    font-size: 32px;
+    letter-spacing: -1px;
+    margin: 8px 0;
+}
+
+h2 {
+    font-size: 19px;
+    margin: 0 0 20px;
+}
+
+p {
+    margin: 6px 0 20px;
+    color: var(--cor-atenuada);
+}
+
+.cabecalho-secao {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.painel {
+    background: white;
+    border: 1px solid var(--cor-borda);
+    border-radius: 14px;
+    padding: 28px;
+}
+
+.grade {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 24px;
+}
+
+.pilha {
+    display: grid;
+    gap: 20px;
+}
+
+.campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.campo {
+    display: grid;
+    gap: 7px;
+    align-content: start;
+}
+
+.linha-inteira {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+input, textarea, select {
+    width: 100%;
+    border: 1px solid #bccac1;
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--cor-texto);
+    background: white;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+small {
+    color: var(--cor-atenuada);
+    font-size: 12px;
+}
+
+.cartao-preco {
+    background: #edf4ee;
+    border-color: #c9dccd;
+}
+
+.preco-destaque {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin: 10px 0;
+    color: var(--cor-marca);
+}
+
+.metricas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    border-top: 1px solid var(--cor-borda);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.metricas strong {
+    display: block;
+    font-size: 22px;
+}
+
+.aviso {
+    padding: 14px 16px;
+    background: #edf4ee;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 16px;
+    border: 1px solid #c9dccd;
+}
+
+.aviso.atencao {
+    background: #fff2d9;
+    color: #725119;
+    border-color: #f7deb0;
+}
+
+.aviso.perigo {
+    background: #fbe8e4;
+    color: #9a382c;
+    border-color: #f3cbc4;
+}
+
+.aviso.sucesso {
+    background: #edf4ee;
+    color: #205c3b;
+    border-color: #c3e2cc;
+}
+
+.acoes {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 26px;
+}
+
+.tabela-responsiva {
+    overflow-x: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: left;
+}
+
+th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--cor-atenuada);
+    padding: 15px 12px;
+    background: #f6f8f5;
+}
+
+td {
+    padding: 16px 12px;
+    border-top: 1px solid var(--cor-borda);
+    vertical-align: middle;
+}
+
+td strong {
+    display: block;
+}
+
+td small {
+    display: block;
+}
+
+.miniatura {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+}
+
+.selo {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.selo-disponivel {
+    background: #e4f4ea;
+    color: #1a6f3b;
+    border: 1px solid #c2e5cd;
+}
+
+.selo-vendido {
+    background: #edf1ee;
+    color: #5c6861;
+    border: 1px solid #d4dad6;
+}
+
+.painel-vazio {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.voltar {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--cor-marca);
+    margin-bottom: 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.imagem-detalhe {
+    max-width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--cor-borda);
+}
+
+.descricao-detalhe {
+    background: #fafbfa;
+    border: 1px solid var(--cor-borda);
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 6px;
+    line-height: 1.6;
+}
+
+@media(max-width: 760px) {
+    .grade {
+        grid-template-columns: 1fr;
+    }
+    .cabecalho-secao {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .campos {
+        grid-template-columns: 1fr;
+    }
+    .linha-inteira {
+        grid-column: auto;
+    }
+    h1 {
+        font-size: 26px;
+    }
+    header {
+        padding: 16px 20px;
+    }
+    .painel {
+        padding: 20px;
+    }
+}

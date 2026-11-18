@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Precifico • Novo Produto</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header>
+    <div class="logotipo">Precifico</div>
+    <div class="cabecalho-usuario">
+        <span>Vendedor: <strong id="nome-vendedor-logado">...</strong></span>
+        <a href="produtos.html" class="botao botao-pequeno" style="text-decoration:none;">Meus Produtos</a>
+    </div>
+</header>
+
+<main>
+    <button class="voltar" onclick="window.location.href='produtos.html'">← Voltar para lista de produtos</button>
+
+    <div class="cabecalho-secao">
+        <div>
+            <h1 id="titulo-pagina">Novo Produto</h1>
+        </div>
+    </div>
+
+    <div id="mensagens"></div>
+
+    <form id="form-produto" novalidate>
+        <input type="hidden" id="id-produto" name="id" value="">
+
+        <div class="grade">
+            <div class="painel">
+                <h2>1. Informações do produto</h2>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="codigoProduto">Código / SKU *</label>
+                        <input id="codigoProduto" name="codigoProduto" required maxlength="50"
+                               placeholder="Ex.: PRD-101" autofocus>
+                    </div>
+
+                    <div class="campo">
+                        <label for="situacao">Situação</label>
+                        <select id="situacao" name="situacao">
+                            <option value="DISPONIVEL">Disponível</option>
+                            <option value="VENDIDO">Vendido</option>
+                        </select>
+                    </div>
+
+                    <div class="campo linha-inteira">
+                        <label for="nome">Nome do produto *</label>
+                        <input id="nome" name="nome" required maxlength="100"
+                               placeholder="Ex.: Roda de carro esportiva aro 17">
+                    </div>
+
+                    <div class="campo linha-inteira">
+                        <label for="descricao">Descrição detalhada *</label>
+                        <textarea id="descricao" name="descricao" required maxlength="2000"
+                                  placeholder="Descreva as características, estado de conservação e especificações."></textarea>
+                    </div>
+
+                    <div class="campo linha-inteira">
+                        <label for="imagem">URL da foto do produto (JPEG, PNG, WebP) *</label>
+                        <input id="imagem" name="imagem" type="url" required maxlength="500"
+                               placeholder="https://exemplo.com/fotos/roda.jpg">
+                        <small>Informe o link direto para a imagem do produto na internet.</small>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 32px;">2. Custo e percentual de lucro desejado</h2>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="custo">Valor de custo (R$) *</label>
+                        <input id="custo" name="custo" type="number" min="0.01" step="0.01" required
+                               placeholder="Ex.: 800.00">
+                        <small>Valor de compra ou custo de fabricação.</small>
+                    </div>
+
+                    <div class="campo">
+                        <label for="margem">Acréscimo sobre o custo (%) *</label>
+                        <input id="margem" type="number" min="0" step="0.01" required
+                               placeholder="Ex.: 25" value="25">
+                        <small>Percentual de lucro desejado sobre o valor de custo.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pilha">
+                <div class="painel cartao-preco">
+                    <div class="sobretitulo">SUGESTÃO AUTOMÁTICA</div>
+                    <div class="preco-destaque" id="sugestao">R$ —</div>
+                    <p id="formula">Preencha o custo e o percentual para calcular a sugestão.</p>
+                    <button type="button" id="usar-preco" class="botao" style="width: 100%;">Usar preço sugerido</button>
+                    <small style="display:block; margin-top: 14px; color: var(--cor-atenuada);">Fórmula: Custo + (Custo × Percentual ÷ 100)</small>
+                </div>
+
+                <div class="painel">
+                    <h2>3. Defina seu preço de venda</h2>
+                    <div class="campo">
+                        <label for="venda">Preço de venda final (R$) *</label>
+                        <input id="venda" name="valorVenda" type="number" min="0.01" step="0.01" required
+                               placeholder="Ex.: 1000.00">
+                        <small>Você pode aceitar a sugestão automática ou definir livremente o preço final.</small>
+                    </div>
+
+                    <div class="metricas">
+                        <div>
+                            <small>Lucro estimado</small>
+                            <strong id="lucro">R$ —</strong>
+                        </div>
+                        <div>
+                            <small>Resultado sobre o custo</small>
+                            <strong id="margem-efetiva">—%</strong>
+                        </div>
+                    </div>
+
+                    <div id="aviso-preco" class="aviso" aria-live="polite">
+                        Seu resultado aparecerá aqui.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button type="button" onclick="window.location.href='produtos.html'">Cancelar</button>
+            <button type="submit" id="btn-salvar" class="primario">Salvar produto</button>
+        </div>
+    </form>
+</main>
+
+<script src="js/api.js"></script>
+<script>
+    const vendedor = exigirAutenticacao();
+    verificarMensagemFlash('mensagens');
+
+    const $ = id => document.getElementById(id);
+    const formatarPorcentagem = valor => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(valor) + '%';
+
+    const paramsUrl = new URLSearchParams(window.location.search);
+    const idEdicao = paramsUrl.get('id');
+    const modoEdicao = Boolean(idEdicao);
+
+    let precoSugeridoAtual = 0.0;
+
+    function obterValores() {
+        return {
+            custo: $('custo').value === '' ? NaN : Number($('custo').value),
+            margem: $('margem').value === '' ? NaN : Number($('margem').value),
+            venda: $('venda').value === '' ? NaN : Number($('venda').value)
+        };
+    }
+
+    async function simularPrecificacao() {
+        const { custo, margem, venda } = obterValores();
+        const custoValido = Number.isFinite(custo) && custo > 0;
+        const margemValida = Number.isFinite(margem) && margem >= 0;
+        const vendaValida = Number.isFinite(venda) && venda > 0;
+
+        if (!custoValido) {
+            $('sugestao').textContent = 'R$ —';
+            $('formula').textContent = 'Preencha o custo e o percentual para calcular a sugestão.';
+            $('usar-preco').disabled = true;
+            $('lucro').textContent = 'R$ —';
+            $('margem-efetiva').textContent = '—%';
+            $('aviso-preco').textContent = 'Preencha os valores para visualizar a análise de resultado.';
+            $('aviso-preco').className = 'aviso';
+            precoSugeridoAtual = 0.0;
+            return;
+        }
+
+        try {
+            const { dados } = await requisitarComando('/ControleProduto', {
+                btnop: 'Simular',
+                custo,
+                margem: margemValida ? margem : 0,
+                valorVenda: vendaValida ? venda : 0
+            }, 'GET');
+
+            if (dados && dados.valido) {
+                if (margemValida && dados.precoSugerido > 0) {
+                    precoSugeridoAtual = dados.precoSugerido;
+                    $('sugestao').textContent = formatarMoeda(dados.precoSugerido);
+                    $('formula').textContent = formatarMoeda(custo) + ' de custo + ' + formatarPorcentagem(margem) + ' de margem desejada.';
+                    $('usar-preco').disabled = false;
+                } else {
+                    $('sugestao').textContent = 'R$ —';
+                    $('formula').textContent = 'Preencha o percentual para calcular a sugestão.';
+                    $('usar-preco').disabled = true;
+                }
+
+                if (vendaValida) {
+                    $('lucro').textContent = formatarMoeda(dados.lucro);
+                    $('lucro').style.color = dados.lucro >= 0 ? 'var(--cor-marca)' : '#9a382c';
+                    $('margem-efetiva').textContent = formatarPorcentagem(dados.margemEfetiva);
+                    $('aviso-preco').textContent = dados.diagnostico;
+                    $('aviso-preco').className = 'aviso ' + (dados.estiloAviso || '');
+                } else {
+                    $('lucro').textContent = 'R$ —';
+                    $('margem-efetiva').textContent = '—%';
+                    $('aviso-preco').textContent = 'Defina o preço de venda para visualizar o diagnóstico.';
+                    $('aviso-preco').className = 'aviso';
+                }
+            }
+        } catch (erro) {
+            console.error('Falha ao comunicar com o servidor Java para simulação:', erro);
+        }
+    }
+
+    async function carregarProdutoParaEdicao() {
+        if (!modoEdicao) {
+            simularPrecificacao();
+            return;
+        }
+
+        document.title = 'Precifico • Editar Produto';
+        $('titulo-pagina').textContent = 'Editar Informações do Produto';
+        $('btn-salvar').textContent = 'Salvar alterações';
+        $('id-produto').value = idEdicao;
+
+        try {
+            const { dados } = await requisitarComando('/ControleProduto', { btnop: 'Edita', id: idEdicao }, 'GET');
+            if (!dados.sucesso || !dados.produto) {
+                salvarMensagemFlash('perigo', dados.msgErro || 'Produto não encontrado.');
+                window.location.href = 'produtos.html';
+                return;
+            }
+
+            const p = dados.produto;
+            const prec = p.precificacao || {};
+            const custo = prec.custoProduto || 0.0;
+            const venda = prec.valorVenda || 0.0;
+            const margemPadrao = (custo > 0 && venda > 0) ? ((venda - custo) / custo) * 100.0 : 25.0;
+
+            $('codigoProduto').value = p.codigoProduto || '';
+            $('situacao').value = (p.situacao || 'DISPONIVEL').toUpperCase();
+            $('nome').value = p.nome || '';
+            $('descricao').value = p.descricao || '';
+            $('imagem').value = p.imagem || '';
+            $('custo').value = custo > 0 ? custo.toFixed(2) : '';
+            $('margem').value = margemPadrao >= 0 ? margemPadrao.toFixed(2) : '25';
+            $('venda').value = venda > 0 ? venda.toFixed(2) : '';
+
+            await simularPrecificacao();
+        } catch (erro) {
+            exibirAlerta('mensagens', 'perigo', 'Erro ao carregar dados do produto para edição.');
+        }
+    }
+
+    ['custo', 'margem', 'venda'].forEach(id => $(id).addEventListener('input', simularPrecificacao));
+
+    $('usar-preco').addEventListener('click', () => {
+        if (precoSugeridoAtual > 0) {
+            $('venda').value = precoSugeridoAtual.toFixed(2);
+            simularPrecificacao();
+        }
+    });
+
+    $('form-produto').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const parametros = {
+            btnop: modoEdicao ? 'Atualizar' : 'Cadastrar',
+            id: $('id-produto').value,
+            codigoProduto: $('codigoProduto').value,
+            situacao: $('situacao').value,
+            nome: $('nome').value,
+            descricao: $('descricao').value,
+            imagem: $('imagem').value,
+            custo: $('custo').value,
+            valorVenda: $('venda').value
+        };
+
+        try {
+            const { dados } = await requisitarComando('/ControleProduto', parametros, 'POST');
+            if (dados.sucesso) {
+                salvarMensagemFlash('sucesso', dados.msgSucesso);
+                window.location.href = 'produtos.html';
+            } else {
+                exibirAlerta('mensagens', 'perigo', dados.msgErro || 'Não foi possível salvar o produto.');
+            }
+        } catch (erro) {
+            exibirAlerta('mensagens', 'perigo', 'Erro ao comunicar com o servidor Spring Boot.');
+        }
+    });
+
+    if (vendedor) {
+        carregarProdutoParaEdicao();
+    }
+</script>
+</body>
+</html>
