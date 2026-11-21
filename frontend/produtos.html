@@ -32,28 +32,31 @@
     </div>
 </main>
 
-<script src="js/api.js"></script>
+<script src="js/httpClient.js"></script>
+<script src="js/sessao.js"></script>
+<script src="js/authServico.js"></script>
+<script src="js/produtoServico.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
 <script>
-    const vendedor = exigirAutenticacao();
-    verificarMensagemFlash('mensagens');
-
-    function escaparHtml(texto) {
-        const div = document.createElement('div');
-        div.textContent = texto || '';
-        return div.innerHTML;
-    }
+    const { sessao, authServico, produtoServico } = window.PrecificoApp;
+    const vendedor = exigirAutenticacao(sessao, authServico);
+    verificarMensagemFlash('mensagens', sessao);
 
     async function carregarProdutos() {
         const container = document.getElementById('container-produtos');
         try {
-            const { dados } = await requisitarComando('/ControleProduto', { btnop: 'ConsultarTodos' }, 'GET');
-
-            if (!dados.sucesso) {
-                exibirAlerta('mensagens', 'perigo', dados.msgErro || 'Não foi possível carregar os produtos.');
+            const resposta = await produtoServico.listarTodos();
+            if (tratarNaoAutorizado(resposta, sessao)) {
                 return;
             }
 
-            const listaProdutos = dados.listaProdutos || [];
+            if (!resposta.sucesso) {
+                exibirAlerta('mensagens', 'perigo', resposta.mensagem || 'Não foi possível carregar os produtos.');
+                return;
+            }
+
+            const listaProdutos = resposta.dados || [];
             if (listaProdutos.length === 0) {
                 container.innerHTML = `
                     <div class="painel-vazio">
@@ -64,27 +67,27 @@
                 return;
             }
 
-            const linhasHtml = listaProdutos.map(p => {
-                const prec = p.precificacao || {};
-                const custo = prec.custoProduto || 0.0;
-                const venda = prec.valorVenda || 0.0;
-                const lucro = prec.lucro || 0.0;
-                const margem = prec.margemEfetiva || 0.0;
-                const disponivel = String(p.situacao).toUpperCase() === 'DISPONIVEL';
-                const urlFoto = (p.imagem && p.imagem.trim() !== '') ? p.imagem : 'img/sem-foto.jpg';
+            const linhasHtml = listaProdutos.map(function (produto) {
+                const precificacao = produto.precificacao || {};
+                const custo = precificacao.custoProduto || 0.0;
+                const venda = precificacao.valorVenda || 0.0;
+                const lucro = precificacao.lucro || 0.0;
+                const margem = precificacao.margemEfetiva || 0.0;
+                const disponivel = String(produto.situacao).toUpperCase() === 'DISPONIVEL';
+                const urlFoto = (produto.imagem && produto.imagem.trim() !== '') ? produto.imagem : 'img/sem-foto.jpg';
 
                 return `
                     <tr>
                         <td>
-                            <img src="${escaparHtml(urlFoto)}" alt="${escaparHtml(p.nome)}" class="miniatura"
+                            <img src="${escaparHtml(urlFoto)}" alt="${escaparHtml(produto.nome)}" class="miniatura"
                                  onerror="this.onerror=null; this.src='img/sem-foto.jpg';">
                         </td>
                         <td>
-                            <strong>${escaparHtml(p.codigoProduto)}</strong>
+                            <strong>${escaparHtml(produto.codigoProduto)}</strong>
                         </td>
                         <td>
-                            <strong>${escaparHtml(p.nome)}</strong>
-                            <small style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escaparHtml(p.descricao)}</small>
+                            <strong>${escaparHtml(produto.nome)}</strong>
+                            <small style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escaparHtml(produto.descricao)}</small>
                         </td>
                         <td>
                             R$ ${formatarDecimal(custo, 2)}
@@ -100,16 +103,16 @@
                         </td>
                         <td>
                             <span class="selo ${disponivel ? 'selo-disponivel' : 'selo-vendido'}">
-                                ${escaparHtml(p.situacao)}
+                                ${escaparHtml(produto.situacao)}
                             </span>
                         </td>
                         <td style="text-align: right; white-space: nowrap;">
-                            <a href="detalhe_produto.html?id=${p.id}" class="botao botao-pequeno" title="Visualizar Detalhes e Precificação">Visualizar</a>
-                            <a href="formulario_produto.html?id=${p.id}" class="botao botao-pequeno" title="Editar Produto">Editar</a>
-                            <button type="button" class="botao botao-pequeno" onclick="alternarSituacao(${p.id})" title="Alternar Disponível / Vendido">
+                            <a href="detalhe_produto.html?id=${produto.id}" class="botao botao-pequeno" title="Visualizar Detalhes e Precificação">Visualizar</a>
+                            <a href="formulario_produto.html?id=${produto.id}" class="botao botao-pequeno" title="Editar Produto">Editar</a>
+                            <button type="button" class="botao botao-pequeno" onclick="alternarSituacao(${produto.id})" title="Alternar Disponível / Vendido">
                                 ${disponivel ? 'Marcar Vendido' : 'Reativar'}
                             </button>
-                            <button type="button" class="botao botao-pequeno botao-perigo" onclick="excluirProduto(${p.id}, '${escaparHtml(p.nome).replace(/'/g, "\\'")}')" title="Excluir Produto">
+                            <button type="button" class="botao botao-pequeno botao-perigo" onclick="excluirProduto(${produto.id}, '${escaparHtml(produto.nome).replace(/'/g, "\\'")}')" title="Excluir Produto">
                                 Excluir
                             </button>
                         </td>
@@ -139,21 +142,24 @@
                 </div>
             `;
         } catch (erro) {
-            if (erro.message !== 'Não autenticado') {
-                exibirAlerta('mensagens', 'perigo', 'Falha ao conectar com a API do servidor.');
-            }
+            exibirAlerta('mensagens', 'perigo', 'Falha ao conectar com a API do servidor.');
         }
     }
 
     async function alternarSituacao(id) {
         try {
-            const { dados } = await requisitarComando('/ControleProduto', { btnop: 'AlterarSituacao', id }, 'POST');
-            if (dados.sucesso) {
-                exibirAlerta('mensagens', 'sucesso', dados.msgSucesso);
-                await carregarProdutos();
-            } else {
-                exibirAlerta('mensagens', 'perigo', dados.msgErro);
+            const resposta = await produtoServico.alterarSituacao(id);
+            if (tratarNaoAutorizado(resposta, sessao)) {
+                return;
             }
+
+            if (resposta.sucesso) {
+                exibirAlerta('mensagens', 'sucesso', resposta.mensagem);
+                await carregarProdutos();
+                return;
+            }
+
+            exibirAlerta('mensagens', 'perigo', resposta.mensagem || 'Erro ao alterar situação do produto.');
         } catch (erro) {
             exibirAlerta('mensagens', 'perigo', 'Erro ao alterar situação do produto.');
         }
@@ -164,13 +170,18 @@
             return;
         }
         try {
-            const { dados } = await requisitarComando('/ControleProduto', { btnop: 'Deletar', id }, 'POST');
-            if (dados.sucesso) {
-                exibirAlerta('mensagens', 'sucesso', dados.msgSucesso);
-                await carregarProdutos();
-            } else {
-                exibirAlerta('mensagens', 'perigo', dados.msgErro);
+            const resposta = await produtoServico.deletar(id);
+            if (tratarNaoAutorizado(resposta, sessao)) {
+                return;
             }
+
+            if (resposta.sucesso) {
+                exibirAlerta('mensagens', 'sucesso', resposta.mensagem);
+                await carregarProdutos();
+                return;
+            }
+
+            exibirAlerta('mensagens', 'perigo', resposta.mensagem || 'Erro ao excluir o produto.');
         } catch (erro) {
             exibirAlerta('mensagens', 'perigo', 'Erro ao excluir o produto.');
         }

@@ -2,6 +2,7 @@ package br.com.precifico.builder;
 
 import br.com.precifico.model.Precificacao;
 import br.com.precifico.model.Produto;
+import br.com.precifico.model.SituacaoProduto;
 import br.com.precifico.model.Vendedor;
 
 public class ProdutoBuilder {
@@ -10,7 +11,7 @@ public class ProdutoBuilder {
     private String nome;
     private String descricao;
     private String imagem;
-    private String situacao = "DISPONIVEL";
+    private SituacaoProduto situacao = SituacaoProduto.DISPONIVEL;
     private Vendedor vendedor;
     private Precificacao precificacao;
 
@@ -39,8 +40,8 @@ public class ProdutoBuilder {
         return this;
     }
 
-    public ProdutoBuilder comSituacao(String situacao) {
-        this.situacao = situacao;
+    public ProdutoBuilder comSituacao(SituacaoProduto situacao) {
+        this.situacao = situacao != null ? situacao : SituacaoProduto.DISPONIVEL;
         return this;
     }
 

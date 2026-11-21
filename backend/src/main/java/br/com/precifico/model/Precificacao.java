@@ -43,23 +43,30 @@ public class Precificacao {
         if (this.valorVenda < this.custoProduto) {
             return "Atenção: este preço resultará em prejuízo. Você pode continuar.";
         }
+
         double precoSugerido = calcularPrecoSugerido(percentualLucroDesejado);
         if (precoSugerido <= 0) {
             return "Preço definido.";
         }
 
         double diferencaPercentual = ((this.valorVenda - precoSugerido) / precoSugerido) * 100.0;
+        return classificarPorDiferenca(diferencaPercentual);
+    }
+
+    private String classificarPorDiferenca(double diferencaPercentual) {
         if (diferencaPercentual < -20.0) {
             return "Atenção: o preço está muito abaixo da sugestão.";
-        } else if (diferencaPercentual >= -20.0 && diferencaPercentual < -5.0) {
-            return "O preço está abaixo da sugestão.";
-        } else if (diferencaPercentual >= -5.0 && diferencaPercentual <= 5.0) {
-            return "O preço está próximo do valor sugerido.";
-        } else if (diferencaPercentual > 5.0 && diferencaPercentual <= 20.0) {
-            return "O preço está acima da sugestão.";
-        } else {
-            return "Atenção: o preço está muito acima da sugestão.";
         }
+        if (diferencaPercentual < -5.0) {
+            return "O preço está abaixo da sugestão.";
+        }
+        if (diferencaPercentual <= 5.0) {
+            return "O preço está próximo do valor sugerido.";
+        }
+        if (diferencaPercentual <= 20.0) {
+            return "O preço está acima da sugestão.";
+        }
+        return "Atenção: o preço está muito acima da sugestão.";
     }
 
     public int getId() {

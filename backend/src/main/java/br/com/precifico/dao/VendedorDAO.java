@@ -1,18 +1,27 @@
 package br.com.precifico.dao;
 
-import br.com.precifico.database.FabricaConexao;
+import br.com.precifico.database.IConexaoFactory;
 import br.com.precifico.model.Vendedor;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class VendedorDAO {
+@Repository
+public class VendedorDAO implements IVendedorDAO {
 
+    private final IConexaoFactory conexaoFactory;
+
+    public VendedorDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory;
+    }
+
+    @Override
     public void cadastrar(Vendedor vendedor) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "insert into vendedores (nome, email, senha, idade, endereco, cpf) values (?, ?, ?, ?, ?, ?)");
         comando.setString(1, vendedor.getNome());
         comando.setString(2, vendedor.getEmail());
@@ -21,70 +30,70 @@ public class VendedorDAO {
         comando.setString(5, vendedor.getEndereco());
         comando.setString(6, vendedor.getCpf());
         comando.execute();
-        con.close();
+        conexao.close();
     }
 
+    @Override
     public Vendedor autenticar(Vendedor vendedor) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "select * from vendedores where email = ? and senha = ?");
         comando.setString(1, vendedor.getEmail());
         comando.setString(2, vendedor.getSenha());
-        ResultSet rs = comando.executeQuery();
-        Vendedor v = null;
-        if (rs.next()) {
-            v = new Vendedor();
-            v.setId(rs.getInt("id"));
-            v.setNome(rs.getString("nome"));
-            v.setEmail(rs.getString("email"));
-            v.setSenha(rs.getString("senha"));
-            v.setIdade(rs.getInt("idade"));
-            v.setEndereco(rs.getString("endereco"));
-            v.setCpf(rs.getString("cpf"));
+        ResultSet resultado = comando.executeQuery();
+
+        Vendedor vendedorEncontrado = null;
+        if (resultado.next()) {
+            vendedorEncontrado = mapearVendedor(resultado);
         }
-        con.close();
-        return v;
+
+        conexao.close();
+        return vendedorEncontrado;
     }
 
+    @Override
     public Vendedor consultarPorId(Vendedor vendedor) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "select * from vendedores where id = ?");
         comando.setInt(1, vendedor.getId());
-        ResultSet rs = comando.executeQuery();
-        Vendedor v = null;
-        if (rs.next()) {
-            v = new Vendedor();
-            v.setId(rs.getInt("id"));
-            v.setNome(rs.getString("nome"));
-            v.setEmail(rs.getString("email"));
-            v.setSenha(rs.getString("senha"));
-            v.setIdade(rs.getInt("idade"));
-            v.setEndereco(rs.getString("endereco"));
-            v.setCpf(rs.getString("cpf"));
+        ResultSet resultado = comando.executeQuery();
+
+        Vendedor vendedorEncontrado = null;
+        if (resultado.next()) {
+            vendedorEncontrado = mapearVendedor(resultado);
         }
-        con.close();
-        return v;
+
+        conexao.close();
+        return vendedorEncontrado;
     }
 
+    @Override
     public Vendedor consultarPorEmail(Vendedor vendedor) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "select * from vendedores where email = ?");
         comando.setString(1, vendedor.getEmail());
-        ResultSet rs = comando.executeQuery();
-        Vendedor v = null;
-        if (rs.next()) {
-            v = new Vendedor();
-            v.setId(rs.getInt("id"));
-            v.setNome(rs.getString("nome"));
-            v.setEmail(rs.getString("email"));
-            v.setSenha(rs.getString("senha"));
-            v.setIdade(rs.getInt("idade"));
-            v.setEndereco(rs.getString("endereco"));
-            v.setCpf(rs.getString("cpf"));
+        ResultSet resultado = comando.executeQuery();
+
+        Vendedor vendedorEncontrado = null;
+        if (resultado.next()) {
+            vendedorEncontrado = mapearVendedor(resultado);
         }
-        con.close();
-        return v;
+
+        conexao.close();
+        return vendedorEncontrado;
+    }
+
+    private Vendedor mapearVendedor(ResultSet resultado) throws SQLException {
+        return new Vendedor(
+                resultado.getInt("id"),
+                resultado.getString("nome"),
+                resultado.getString("email"),
+                resultado.getString("senha"),
+                resultado.getInt("idade"),
+                resultado.getString("endereco"),
+                resultado.getString("cpf")
+        );
     }
 }

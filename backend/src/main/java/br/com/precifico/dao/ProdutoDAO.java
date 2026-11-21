@@ -1,9 +1,11 @@
 package br.com.precifico.dao;
 
 import br.com.precifico.builder.ProdutoBuilder;
-import br.com.precifico.database.FabricaConexao;
+import br.com.precifico.database.IConexaoFactory;
 import br.com.precifico.model.Produto;
+import br.com.precifico.model.SituacaoProduto;
 import br.com.precifico.model.Vendedor;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,125 +14,114 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProdutoDAO {
+@Repository
+public class ProdutoDAO implements IProdutoDAO {
 
-    public void cadastrar(Produto prod) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+    private final IConexaoFactory conexaoFactory;
+
+    public ProdutoDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory;
+    }
+
+    @Override
+    public void cadastrar(Produto produto) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "insert into produtos (codigo_produto, nome, descricao, imagem, situacao, id_vendedor) values (?, ?, ?, ?, ?, ?)");
-        comando.setString(1, prod.getCodigoProduto());
-        comando.setString(2, prod.getNome());
-        comando.setString(3, prod.getDescricao());
-        comando.setString(4, prod.getImagem());
-        comando.setString(5, prod.getSituacao() != null ? prod.getSituacao() : "DISPONIVEL");
-        comando.setInt(6, prod.getVendedor() != null ? prod.getVendedor().getId() : 0);
+        comando.setString(1, produto.getCodigoProduto());
+        comando.setString(2, produto.getNome());
+        comando.setString(3, produto.getDescricao());
+        comando.setString(4, produto.getImagem());
+        comando.setString(5, produto.obterNomeSituacao());
+        comando.setInt(6, produto.obterIdVendedor());
         comando.execute();
 
-        PreparedStatement cmdId = con.prepareStatement("select max(id) as id from produtos");
-        ResultSet rs = cmdId.executeQuery();
-        rs.next();
-        int idGerado = rs.getInt("id");
-        prod.setId(idGerado);
-        con.close();
-
-        // salva no banco a precificacao do produto
-        prod.getPrecificacao().setIdProduto(idGerado);
-        new PrecificacaoDAO().cadastrar(prod.getPrecificacao());
+        PreparedStatement comandoId = conexao.prepareStatement("select max(id) as id from produtos");
+        ResultSet resultado = comandoId.executeQuery();
+        resultado.next();
+        produto.setId(resultado.getInt("id"));
+        conexao.close();
     }
 
-    public void atualizar(Produto prod) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+    @Override
+    public void atualizar(Produto produto) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "update produtos set codigo_produto = ?, nome = ?, descricao = ?, imagem = ?, situacao = ? where id = ?");
-        comando.setString(1, prod.getCodigoProduto());
-        comando.setString(2, prod.getNome());
-        comando.setString(3, prod.getDescricao());
-        comando.setString(4, prod.getImagem());
-        comando.setString(5, prod.getSituacao());
-        comando.setInt(6, prod.getId());
+        comando.setString(1, produto.getCodigoProduto());
+        comando.setString(2, produto.getNome());
+        comando.setString(3, produto.getDescricao());
+        comando.setString(4, produto.getImagem());
+        comando.setString(5, produto.obterNomeSituacao());
+        comando.setInt(6, produto.getId());
         comando.execute();
-        con.close();
-
-        // atualiza a precificacao do produto
-        prod.getPrecificacao().setIdProduto(prod.getId());
-        new PrecificacaoDAO().atualizar(prod.getPrecificacao());
+        conexao.close();
     }
 
-    public void alterarSituacao(Produto prod) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement("update produtos set situacao = ? where id = ?");
-        comando.setString(1, prod.getSituacao());
-        comando.setInt(2, prod.getId());
+    @Override
+    public void alterarSituacao(Produto produto) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement("update produtos set situacao = ? where id = ?");
+        comando.setString(1, produto.obterNomeSituacao());
+        comando.setInt(2, produto.getId());
         comando.execute();
-        con.close();
+        conexao.close();
     }
 
-    public void deletar(Produto prod) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement("delete from produtos where id = ?");
-        comando.setInt(1, prod.getId());
+    @Override
+    public void deletar(Produto produto) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement("delete from produtos where id = ?");
+        comando.setInt(1, produto.getId());
         comando.execute();
-        con.close();
+        conexao.close();
     }
 
-    public Produto consultarPorId(Produto prod) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement("select * from produtos where id = ?");
-        comando.setInt(1, prod.getId());
-        ResultSet rs = comando.executeQuery();
-        Produto p = null;
-        if (rs.next()) {
-            Vendedor vFiltro = new Vendedor();
-            vFiltro.setId(rs.getInt("id_vendedor"));
-            Vendedor vendedor = new VendedorDAO().consultarPorId(vFiltro);
+    @Override
+    public Produto consultarPorId(Produto produtoFiltro) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement("select * from produtos where id = ?");
+        comando.setInt(1, produtoFiltro.getId());
+        ResultSet resultado = comando.executeQuery();
 
-            Produto temp = new Produto();
-            temp.setId(rs.getInt("id"));
-
-            p = new ProdutoBuilder()
-                    .comId(rs.getInt("id"))
-                    .comCodigoProduto(rs.getString("codigo_produto"))
-                    .comNome(rs.getString("nome"))
-                    .comDescricao(rs.getString("descricao"))
-                    .comImagem(rs.getString("imagem"))
-                    .comSituacao(rs.getString("situacao"))
-                    .comVendedor(vendedor)
-                    .comPrecificacao(new PrecificacaoDAO().consultarPorProduto(temp))
-                    .constroi();
+        Produto produto = null;
+        if (resultado.next()) {
+            produto = mapearProduto(resultado);
         }
-        con.close();
-        return p;
+
+        conexao.close();
+        return produto;
     }
 
-    // metodo consultar todos
+    @Override
     public List<Produto> consultarPorVendedor(Vendedor vendedor) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "select * from produtos where id_vendedor = ? order by id desc");
         comando.setInt(1, vendedor.getId());
-        ResultSet rs = comando.executeQuery();
-        List<Produto> lista = new ArrayList<>();
-        Vendedor vCompleto = new VendedorDAO().consultarPorId(vendedor);
-        PrecificacaoDAO precDAO = new PrecificacaoDAO();
+        ResultSet resultado = comando.executeQuery();
 
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            Produto temp = new Produto();
-            temp.setId(id);
-
-            Produto p = new ProdutoBuilder()
-                    .comId(id)
-                    .comCodigoProduto(rs.getString("codigo_produto"))
-                    .comNome(rs.getString("nome"))
-                    .comDescricao(rs.getString("descricao"))
-                    .comImagem(rs.getString("imagem"))
-                    .comSituacao(rs.getString("situacao"))
-                    .comVendedor(vCompleto)
-                    .comPrecificacao(precDAO.consultarPorProduto(temp))
-                    .constroi();
-            lista.add(p);
+        List<Produto> listaProdutos = new ArrayList<>();
+        while (resultado.next()) {
+            listaProdutos.add(mapearProduto(resultado));
         }
-        con.close();
-        return lista;
+
+        conexao.close();
+        return listaProdutos;
+    }
+
+    private Produto mapearProduto(ResultSet resultado) throws SQLException {
+        Vendedor vendedor = new Vendedor();
+        vendedor.setId(resultado.getInt("id_vendedor"));
+
+        return new ProdutoBuilder()
+                .comId(resultado.getInt("id"))
+                .comCodigoProduto(resultado.getString("codigo_produto"))
+                .comNome(resultado.getString("nome"))
+                .comDescricao(resultado.getString("descricao"))
+                .comImagem(resultado.getString("imagem"))
+                .comSituacao(SituacaoProduto.deTexto(resultado.getString("situacao")))
+                .comVendedor(vendedor)
+                .constroi();
     }
 }

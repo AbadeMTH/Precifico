@@ -42,29 +42,31 @@
     </div>
 </main>
 
-<script src="js/api.js"></script>
+<script src="js/httpClient.js"></script>
+<script src="js/sessao.js"></script>
+<script src="js/authServico.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
 <script>
-    verificarMensagemFlash('mensagens');
+    const { sessao, authServico } = window.PrecificoApp;
+    verificarMensagemFlash('mensagens', sessao);
 
-    document.getElementById('form-login').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    document.getElementById('form-login').addEventListener('submit', async function (evento) {
+        evento.preventDefault();
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
 
         try {
-            const { dados } = await requisitarComando('/ControleVendedor', {
-                btnop: 'Entrar',
-                email,
-                senha
-            }, 'POST');
+            const resposta = await authServico.entrar({ email, senha });
 
-            if (dados.sucesso && dados.vendedor) {
-                salvarVendedorLogado(dados.vendedor);
-                salvarMensagemFlash('sucesso', dados.msgSucesso);
+            if (resposta.sucesso && resposta.dados) {
+                sessao.salvarVendedor(resposta.dados);
+                sessao.salvarMensagemFlash('sucesso', resposta.mensagem);
                 window.location.href = 'produtos.html';
-            } else {
-                exibirAlerta('mensagens', 'perigo', dados.msgErro || 'Não foi possível realizar o login.');
+                return;
             }
+
+            exibirAlerta('mensagens', 'perigo', resposta.mensagem || 'Não foi possível realizar o login.');
         } catch (erro) {
             exibirAlerta('mensagens', 'perigo', 'Erro de conexão com o servidor Spring Boot (verifique se está rodando na porta 8080).');
         }

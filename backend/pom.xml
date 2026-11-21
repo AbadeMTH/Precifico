@@ -15,7 +15,7 @@
     <artifactId>precifico-backend</artifactId>
     <version>1.0.0</version>
     <name>Precifico Backend</name>
-    <description>API REST Spring Boot para o sistema Precifico mantendo padroes DAO, Builder e Command</description>
+    <description>API REST Spring Boot para o sistema Precifico com padroes DAO, Builder e principios SOLID</description>
 
     <properties>
         <java.version>17</java.version>

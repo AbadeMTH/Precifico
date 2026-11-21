@@ -1,56 +1,74 @@
 package br.com.precifico.dao;
 
-import br.com.precifico.database.FabricaConexao;
+import br.com.precifico.database.IConexaoFactory;
 import br.com.precifico.model.Precificacao;
 import br.com.precifico.model.Produto;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PrecificacaoDAO {
+@Repository
+public class PrecificacaoDAO implements IPrecificacaoDAO {
 
-    public void cadastrar(Precificacao prec) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+    private final IConexaoFactory conexaoFactory;
+
+    public PrecificacaoDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory;
+    }
+
+    @Override
+    public void cadastrar(Precificacao precificacao) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "insert into precificacoes (id_produto, valor_venda, custo_produto, lucro) values (?, ?, ?, ?)");
-        comando.setInt(1, prec.getIdProduto());
-        comando.setDouble(2, prec.getValorVenda());
-        comando.setDouble(3, prec.getCustoProduto());
-        comando.setDouble(4, prec.getLucro());
+        comando.setInt(1, precificacao.getIdProduto());
+        comando.setDouble(2, precificacao.getValorVenda());
+        comando.setDouble(3, precificacao.getCustoProduto());
+        comando.setDouble(4, precificacao.getLucro());
         comando.execute();
-        con.close();
+        conexao.close();
     }
 
-    public void atualizar(Precificacao prec) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+    @Override
+    public void atualizar(Precificacao precificacao) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "update precificacoes set valor_venda = ?, custo_produto = ?, lucro = ? where id_produto = ?");
-        comando.setDouble(1, prec.getValorVenda());
-        comando.setDouble(2, prec.getCustoProduto());
-        comando.setDouble(3, prec.getLucro());
-        comando.setInt(4, prec.getIdProduto());
+        comando.setDouble(1, precificacao.getValorVenda());
+        comando.setDouble(2, precificacao.getCustoProduto());
+        comando.setDouble(3, precificacao.getLucro());
+        comando.setInt(4, precificacao.getIdProduto());
         comando.execute();
-        con.close();
+        conexao.close();
     }
 
-    public Precificacao consultarPorProduto(Produto prod) throws ClassNotFoundException, SQLException {
-        Connection con = FabricaConexao.getConexao();
-        PreparedStatement comando = con.prepareStatement(
+    @Override
+    public Precificacao consultarPorProduto(Produto produto) throws ClassNotFoundException, SQLException {
+        Connection conexao = conexaoFactory.getConexao();
+        PreparedStatement comando = conexao.prepareStatement(
                 "select * from precificacoes where id_produto = ?");
-        comando.setInt(1, prod.getId());
-        ResultSet rs = comando.executeQuery();
-        Precificacao prec = null;
-        if (rs.next()) {
-            prec = new Precificacao();
-            prec.setId(rs.getInt("id"));
-            prec.setIdProduto(rs.getInt("id_produto"));
-            prec.setValorVenda(rs.getDouble("valor_venda"));
-            prec.setCustoProduto(rs.getDouble("custo_produto"));
-            prec.setLucro(rs.getDouble("lucro"));
+        comando.setInt(1, produto.getId());
+        ResultSet resultado = comando.executeQuery();
+
+        Precificacao precificacao = null;
+        if (resultado.next()) {
+            precificacao = mapearPrecificacao(resultado);
         }
-        con.close();
-        return prec;
+
+        conexao.close();
+        return precificacao;
+    }
+
+    private Precificacao mapearPrecificacao(ResultSet resultado) throws SQLException {
+        return new Precificacao(
+                resultado.getInt("id"),
+                resultado.getInt("id_produto"),
+                resultado.getDouble("valor_venda"),
+                resultado.getDouble("custo_produto"),
+                resultado.getDouble("lucro")
+        );
     }
 }

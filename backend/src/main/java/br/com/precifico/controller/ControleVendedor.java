@@ -1,40 +1,78 @@
 package br.com.precifico.controller;
 
-import br.com.precifico.command.ICommand;
+import br.com.precifico.dto.CadastroVendedorRequisicao;
+import br.com.precifico.dto.LoginRequisicao;
+import br.com.precifico.dto.RespostaApi;
+import br.com.precifico.service.IVendedorService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestController
 public class ControleVendedor {
 
-    @RequestMapping(
-            value = {"/ControleVendedor", "/vendedor", "/api/vendedores"},
-            method = {RequestMethod.GET, RequestMethod.POST}
-    )
-    public Map<String, Object> processRequest(HttpServletRequest request, HttpServletResponse response) {
-        String paramAction = request.getParameter("btnop");
-        if (paramAction == null || paramAction.trim().isEmpty()) {
-            paramAction = request.getParameter("op");
-        }
+    private final IVendedorService vendedorService;
 
+    public ControleVendedor(IVendedorService vendedorService) {
+        this.vendedorService = vendedorService;
+    }
+
+    @PostMapping("/api/vendedores")
+    public ResponseEntity<RespostaApi> cadastrar(
+            @RequestBody CadastroVendedorRequisicao dados,
+            HttpServletRequest requisicaoHttp
+    ) {
         try {
-            String nomeDaClasse = "br.com.precifico.command.action." + paramAction + "VendedorAction";
-            Class<?> classAction = Class.forName(nomeDaClasse);
-            ICommand commandAction = (ICommand) classAction.getDeclaredConstructor().newInstance();
-
-            return commandAction.executar(request, response);
-        } catch (Exception ex) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            Map<String, Object> erro = new LinkedHashMap<>();
-            erro.put("sucesso", false);
-            erro.put("msgErro", "Ocorreu um erro no processamento: " + ex.getMessage());
-            return erro;
+            RespostaApi resposta = vendedorService.cadastrar(dados);
+            registrarSessaoSeAutenticado(resposta, requisicaoHttp);
+            return montarResposta(resposta);
+        } catch (Exception erro) {
+            return montarErroInterno(erro);
         }
+    }
+
+    @PostMapping("/api/auth/login")
+    public ResponseEntity<RespostaApi> entrar(
+            @RequestBody LoginRequisicao dados,
+            HttpServletRequest requisicaoHttp
+    ) {
+        try {
+            RespostaApi resposta = vendedorService.entrar(dados);
+            registrarSessaoSeAutenticado(resposta, requisicaoHttp);
+            return montarResposta(resposta);
+        } catch (Exception erro) {
+            return montarErroInterno(erro);
+        }
+    }
+
+    @PostMapping("/api/auth/logout")
+    public ResponseEntity<RespostaApi> sair(HttpServletRequest requisicaoHttp) {
+        HttpSession sessao = requisicaoHttp.getSession(false);
+        if (sessao != null) {
+            sessao.invalidate();
+        }
+
+        RespostaApi resposta = vendedorService.sair();
+        return montarResposta(resposta);
+    }
+
+    private ResponseEntity<RespostaApi> montarResposta(RespostaApi resposta) {
+        return ResponseEntity.status(resposta.getStatus()).body(resposta);
+    }
+
+    private ResponseEntity<RespostaApi> montarErroInterno(Exception erro) {
+        RespostaApi respostaErro = RespostaApi.erro(500, "Ocorreu um erro no processamento: " + erro.getMessage());
+        return ResponseEntity.status(500).body(respostaErro);
+    }
+
+    private void registrarSessaoSeAutenticado(RespostaApi resposta, HttpServletRequest requisicaoHttp) {
+        if (!resposta.isSucesso() || resposta.getDados() == null) {
+            return;
+        }
+        HttpSession sessao = requisicaoHttp.getSession(true);
+        sessao.setAttribute("vendedorLogado", resposta.getDados());
     }
 }
