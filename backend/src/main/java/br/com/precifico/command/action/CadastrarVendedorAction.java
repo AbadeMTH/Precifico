@@ -5,12 +5,10 @@ import br.com.precifico.dao.VendedorDAO;
 import br.com.precifico.model.Vendedor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Component
 public class CadastrarVendedorAction implements ICommand {
 
     @Override

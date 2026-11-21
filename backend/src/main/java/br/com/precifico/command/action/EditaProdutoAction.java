@@ -7,12 +7,10 @@ import br.com.precifico.model.Produto;
 import br.com.precifico.model.Vendedor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Component
 public class EditaProdutoAction implements ICommand {
 
     @Override

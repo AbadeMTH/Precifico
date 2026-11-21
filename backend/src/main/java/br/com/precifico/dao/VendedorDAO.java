@@ -2,14 +2,12 @@ package br.com.precifico.dao;
 
 import br.com.precifico.database.FabricaConexao;
 import br.com.precifico.model.Vendedor;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Repository
 public class VendedorDAO {
 
     public void cadastrar(Vendedor vendedor) throws ClassNotFoundException, SQLException {

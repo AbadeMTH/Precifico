@@ -4,7 +4,6 @@ import br.com.precifico.builder.ProdutoBuilder;
 import br.com.precifico.database.FabricaConexao;
 import br.com.precifico.model.Produto;
 import br.com.precifico.model.Vendedor;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
 public class ProdutoDAO {
 
     public void cadastrar(Produto prod) throws ClassNotFoundException, SQLException {

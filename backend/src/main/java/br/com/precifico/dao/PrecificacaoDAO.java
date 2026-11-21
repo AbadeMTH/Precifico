@@ -3,14 +3,12 @@ package br.com.precifico.dao;
 import br.com.precifico.database.FabricaConexao;
 import br.com.precifico.model.Precificacao;
 import br.com.precifico.model.Produto;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Repository
 public class PrecificacaoDAO {
 
     public void cadastrar(Precificacao prec) throws ClassNotFoundException, SQLException {

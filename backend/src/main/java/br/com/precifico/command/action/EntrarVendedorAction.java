@@ -6,12 +6,10 @@ import br.com.precifico.model.Vendedor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Component
 public class EntrarVendedorAction implements ICommand {
 
     @Override

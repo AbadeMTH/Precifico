@@ -4,12 +4,10 @@ import br.com.precifico.command.ICommand;
 import br.com.precifico.model.Precificacao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Component
 public class SimularProdutoAction implements ICommand {
 
     @Override
