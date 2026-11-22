@@ -2,37 +2,49 @@ package br.com.precifico.service;
 
 import br.com.precifico.builder.ProdutoBuilder;
 import br.com.precifico.dao.IPrecificacaoDAO;
+import br.com.precifico.dao.IProdutoBrindeDAO;
 import br.com.precifico.dao.IProdutoDAO;
 import br.com.precifico.dao.IVendedorDAO;
+import br.com.precifico.decorator.CompositorBrindes;
 import br.com.precifico.dto.ProdutoRequisicao;
 import br.com.precifico.dto.RespostaApi;
 import br.com.precifico.model.Precificacao;
 import br.com.precifico.model.Produto;
 import br.com.precifico.model.SituacaoProduto;
+import br.com.precifico.model.TipoBrinde;
 import br.com.precifico.model.Vendedor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class ProdutoService implements IProdutoService {
 
     private final IProdutoDAO produtoDAO;
     private final IPrecificacaoDAO precificacaoDAO;
+    private final IProdutoBrindeDAO produtoBrindeDAO;
     private final IVendedorDAO vendedorDAO;
     private final IPrecificacaoService precificacaoService;
+    private final CompositorBrindes compositorBrindes;
 
     public ProdutoService(
             IProdutoDAO produtoDAO,
             IPrecificacaoDAO precificacaoDAO,
+            IProdutoBrindeDAO produtoBrindeDAO,
             IVendedorDAO vendedorDAO,
             IPrecificacaoService precificacaoService
     ) {
         this.produtoDAO = produtoDAO;
         this.precificacaoDAO = precificacaoDAO;
+        this.produtoBrindeDAO = produtoBrindeDAO;
         this.vendedorDAO = vendedorDAO;
         this.precificacaoService = precificacaoService;
+        this.compositorBrindes = new CompositorBrindes();
     }
 
     @Override
@@ -81,12 +93,15 @@ public class ProdutoService implements IProdutoService {
             return erroValidacao;
         }
 
+        List<TipoBrinde> brindesSelecionados = extrairBrindes(dados.getBrindes());
         Produto produto = construirNovoProduto(dados, vendedorLogado);
+        compositorBrindes.aplicarNoProduto(produto, brindesSelecionados);
         produtoDAO.cadastrar(produto);
 
         Precificacao precificacao = produto.getPrecificacao();
         precificacao.setIdProduto(produto.getId());
         precificacaoDAO.cadastrar(precificacao);
+        produtoBrindeDAO.salvarBrindes(produto.getId(), produto.getBrindes());
 
         String mensagem = "Produto '" + produto.getNome() + "' cadastrado com sucesso!";
         return RespostaApi.sucesso(201, mensagem, produto);
@@ -112,9 +127,19 @@ public class ProdutoService implements IProdutoService {
             return erroValidacao;
         }
 
-        Produto produtoAtualizado = construirProdutoAtualizado(idProduto, dados, vendedorLogado, produtoExistente);
+        List<TipoBrinde> brindesSelecionados = extrairBrindes(dados.getBrindes());
+        Precificacao precificacaoExistente = precificacaoDAO.consultarPorProduto(produtoExistente);
+        Produto produtoAtualizado = construirProdutoAtualizado(
+                idProduto,
+                dados,
+                vendedorLogado,
+                produtoExistente,
+                precificacaoExistente
+        );
+        compositorBrindes.aplicarNoProduto(produtoAtualizado, brindesSelecionados);
         produtoDAO.atualizar(produtoAtualizado);
         precificacaoDAO.atualizar(produtoAtualizado.getPrecificacao());
+        produtoBrindeDAO.substituirBrindes(idProduto, produtoAtualizado.getBrindes());
 
         return RespostaApi.sucesso(200, "Produto atualizado com sucesso!", produtoAtualizado);
     }
@@ -181,8 +206,10 @@ public class ProdutoService implements IProdutoService {
 
     private void preencherRelacionamentos(Produto produto, Vendedor vendedor) throws Exception {
         Precificacao precificacao = precificacaoDAO.consultarPorProduto(produto);
+        List<TipoBrinde> brindesPersistidos = produtoBrindeDAO.consultarPorProduto(produto.getId());
         produto.setVendedor(vendedor);
         produto.setPrecificacao(precificacao);
+        compositorBrindes.aplicarNoProduto(produto, brindesPersistidos);
     }
 
     private RespostaApi validarDados(ProdutoRequisicao dados) {
@@ -199,7 +226,42 @@ public class ProdutoService implements IProdutoService {
             return RespostaApi.erro(400, "Os valores de custo e venda devem ser maiores que zero.");
         }
 
+        return validarBrindes(dados.getBrindes());
+    }
+
+    private RespostaApi validarBrindes(List<String> brindesInformados) {
+        if (brindesInformados == null || brindesInformados.isEmpty()) {
+            return null;
+        }
+
+        Set<TipoBrinde> vistos = new LinkedHashSet<>();
+        for (String textoBrinde : brindesInformados) {
+            TipoBrinde tipoBrinde = TipoBrinde.deTexto(textoBrinde);
+            if (tipoBrinde == null) {
+                return RespostaApi.erro(400, "Brinde inválido informado: " + textoBrinde);
+            }
+            if (!vistos.add(tipoBrinde)) {
+                return RespostaApi.erro(400, "Não é permitido selecionar brindes duplicados.");
+            }
+        }
+
         return null;
+    }
+
+    private List<TipoBrinde> extrairBrindes(List<String> brindesInformados) {
+        List<TipoBrinde> brindes = new ArrayList<>();
+        if (brindesInformados == null) {
+            return brindes;
+        }
+
+        for (String textoBrinde : brindesInformados) {
+            TipoBrinde tipoBrinde = TipoBrinde.deTexto(textoBrinde);
+            if (tipoBrinde != null && !brindes.contains(tipoBrinde)) {
+                brindes.add(tipoBrinde);
+            }
+        }
+
+        return brindes;
     }
 
     private Produto construirNovoProduto(ProdutoRequisicao dados, Vendedor vendedorLogado) {
@@ -219,10 +281,12 @@ public class ProdutoService implements IProdutoService {
             int idProduto,
             ProdutoRequisicao dados,
             Vendedor vendedorLogado,
-            Produto produtoExistente
+            Produto produtoExistente,
+            Precificacao precificacaoExistente
     ) {
         Precificacao precificacao = new Precificacao(dados.getValorVenda(), dados.getCusto());
         precificacao.setIdProduto(idProduto);
+        preservarPromocaoSeConsistente(precificacao, precificacaoExistente);
 
         SituacaoProduto situacao = estaVazio(dados.getSituacao())
                 ? produtoExistente.getSituacao()
@@ -238,6 +302,26 @@ public class ProdutoService implements IProdutoService {
                 .comVendedor(vendedorLogado)
                 .comPrecificacao(precificacao)
                 .constroi();
+    }
+
+    private void preservarPromocaoSeConsistente(Precificacao novaPrecificacao, Precificacao precificacaoExistente) {
+        if (precificacaoExistente == null || !precificacaoExistente.isEmPromocao()) {
+            return;
+        }
+
+        BigDecimal novoValorVenda = novaPrecificacao.obterValorVendaDecimal();
+        BigDecimal valorPromocionalAtual = precificacaoExistente.getValorPromocional();
+
+        if (valorPromocionalAtual.compareTo(novoValorVenda) < 0) {
+            BigDecimal novoPercentual = Precificacao.calcularPercentualDesconto(
+                    novoValorVenda,
+                    valorPromocionalAtual
+            );
+            if (novoPercentual.compareTo(BigDecimal.ZERO) > 0
+                    && novoPercentual.compareTo(new BigDecimal("100")) < 0) {
+                novaPrecificacao.aplicarPromocao(valorPromocionalAtual, novoPercentual);
+            }
+        }
     }
 
     private boolean estaVazio(String texto) {

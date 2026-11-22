@@ -1,5 +1,7 @@
 package br.com.precifico.dto;
 
+import java.util.List;
+
 public class ProdutoRequisicao {
 
     private String codigoProduto;
@@ -9,6 +11,7 @@ public class ProdutoRequisicao {
     private String situacao;
     private Double custo;
     private Double valorVenda;
+    private List<String> brindes;
 
     public String getCodigoProduto() {
         return codigoProduto;
@@ -64,5 +67,13 @@ public class ProdutoRequisicao {
 
     public void setValorVenda(Double valorVenda) {
         this.valorVenda = valorVenda;
+    }
+
+    public List<String> getBrindes() {
+        return brindes;
+    }
+
+    public void setBrindes(List<String> brindes) {
+        this.brindes = brindes;
     }
 }

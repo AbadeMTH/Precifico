@@ -3,7 +3,11 @@ package br.com.precifico.builder;
 import br.com.precifico.model.Precificacao;
 import br.com.precifico.model.Produto;
 import br.com.precifico.model.SituacaoProduto;
+import br.com.precifico.model.TipoBrinde;
 import br.com.precifico.model.Vendedor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProdutoBuilder {
     private int id;
@@ -14,6 +18,8 @@ public class ProdutoBuilder {
     private SituacaoProduto situacao = SituacaoProduto.DISPONIVEL;
     private Vendedor vendedor;
     private Precificacao precificacao;
+    private List<TipoBrinde> brindes = new ArrayList<>();
+    private String descricaoComBrindes;
 
     public ProdutoBuilder comId(int id) {
         this.id = id;
@@ -55,7 +61,28 @@ public class ProdutoBuilder {
         return this;
     }
 
+    public ProdutoBuilder comBrindes(List<TipoBrinde> brindes) {
+        this.brindes = brindes != null ? new ArrayList<>(brindes) : new ArrayList<>();
+        return this;
+    }
+
+    public ProdutoBuilder comDescricaoComBrindes(String descricaoComBrindes) {
+        this.descricaoComBrindes = descricaoComBrindes;
+        return this;
+    }
+
     public Produto constroi() {
-        return new Produto(id, codigoProduto, nome, descricao, imagem, situacao, vendedor, precificacao);
+        return new Produto(
+                id,
+                codigoProduto,
+                nome,
+                descricao,
+                imagem,
+                situacao,
+                vendedor,
+                precificacao,
+                brindes,
+                descricaoComBrindes
+        );
     }
 }

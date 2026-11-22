@@ -49,6 +49,11 @@
                 </div>
 
                 <div>
+                    <label>Brindes inclusos</label>
+                    <div id="detalhe-brindes" style="margin-top: 6px;">Nenhum brinde</div>
+                </div>
+
+                <div>
                     <label>URL da Imagem</label>
                     <small style="display:block; word-break: break-all; margin-top: 4px;">
                         <a id="detalhe-url-imagem" href="#" target="_blank" style="color: var(--cor-marca);">—</a>
@@ -83,6 +88,11 @@
                     </div>
                 </div>
 
+                <div id="box-promocao" class="aviso atencao" style="display: none; margin-top: 20px;">
+                    <strong>Promoção ativa:</strong><br>
+                    <span id="detalhe-promocao"></span>
+                </div>
+
                 <div id="box-diagnostico" class="aviso sucesso" style="margin-top: 24px;">
                     <strong>Diagnóstico Comercial:</strong><br>
                     <span id="detalhe-diagnostico">...</span>
@@ -94,6 +104,9 @@
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <a id="btn-editar" href="#" class="botao botao-primario" style="justify-content: center; text-decoration: none;">
                         Editar este produto
+                    </a>
+                    <a id="btn-promover" href="#" class="botao botao-promocao" style="justify-content: center; text-decoration: none;">
+                        Promover produto
                     </a>
                     <button id="btn-situacao" type="button" class="botao" style="justify-content: center;">
                         Alterar situação
@@ -110,114 +123,11 @@
 <script src="js/httpClient.js"></script>
 <script src="js/sessao.js"></script>
 <script src="js/produtoServico.js"></script>
+<script src="js/formatadores.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/guardaAutenticacao.js"></script>
+<script src="js/brindesUi.js"></script>
 <script src="js/app.js"></script>
-<script>
-    const { sessao, produtoServico } = window.PrecificoApp;
-    const vendedor = exigirAutenticacao(sessao);
-    const paramsUrl = new URLSearchParams(window.location.search);
-    const idProduto = paramsUrl.get('id');
-
-    if (!idProduto) {
-        window.location.href = 'produtos.html';
-    }
-
-    async function carregarDetalhes() {
-        try {
-            const resposta = await produtoServico.consultarPorId(idProduto);
-            if (tratarNaoAutorizado(resposta, sessao)) {
-                return;
-            }
-
-            const detalhes = resposta.dados;
-            const produto = detalhes ? detalhes.produto : null;
-            if (!resposta.sucesso || !produto) {
-                sessao.salvarMensagemFlash('perigo', resposta.mensagem || 'Produto não encontrado.');
-                window.location.href = 'produtos.html';
-                return;
-            }
-
-            const precificacao = produto.precificacao || {};
-            const custo = precificacao.custoProduto || 0.0;
-            const venda = precificacao.valorVenda || 0.0;
-            const lucro = precificacao.lucro || 0.0;
-            const margem = detalhes.margemEfetiva !== undefined ? detalhes.margemEfetiva : (precificacao.margemEfetiva || 0.0);
-            const diagnostico = detalhes.diagnosticoComercial || 'Sem precificação cadastrada.';
-            const disponivel = String(produto.situacao).toUpperCase() === 'DISPONIVEL';
-
-            document.title = `Precifico • Detalhes de ${produto.nome}`;
-            document.getElementById('detalhe-nome').textContent = produto.nome;
-
-            const selo = document.getElementById('detalhe-selo');
-            selo.textContent = produto.situacao;
-            selo.className = `selo ${disponivel ? 'selo-disponivel' : 'selo-vendido'}`;
-
-            const urlFoto = (produto.imagem && produto.imagem.trim() !== '') ? produto.imagem : 'img/sem-foto.jpg';
-            const imagem = document.getElementById('detalhe-imagem');
-            imagem.src = urlFoto;
-            imagem.alt = produto.nome;
-
-            document.getElementById('detalhe-codigo').textContent = produto.codigoProduto;
-            document.getElementById('detalhe-descricao').textContent = produto.descricao;
-
-            const linkImagem = document.getElementById('detalhe-url-imagem');
-            linkImagem.href = produto.imagem || '#';
-            linkImagem.textContent = produto.imagem || '—';
-
-            document.getElementById('detalhe-custo').textContent = `R$ ${formatarDecimal(custo, 2)}`;
-            document.getElementById('detalhe-venda').textContent = `R$ ${formatarDecimal(venda, 2)}`;
-
-            const elementoLucro = document.getElementById('detalhe-lucro');
-            elementoLucro.textContent = `R$ ${formatarDecimal(lucro, 2)}`;
-            elementoLucro.style.color = lucro >= 0 ? 'var(--cor-marca)' : '#9a382c';
-
-            document.getElementById('detalhe-margem').textContent = `${formatarDecimal(margem, 1)}%`;
-
-            const boxDiagnostico = document.getElementById('box-diagnostico');
-            boxDiagnostico.className = `aviso ${lucro >= 0 ? 'sucesso' : 'perigo'}`;
-            document.getElementById('detalhe-diagnostico').textContent = diagnostico;
-
-            document.getElementById('btn-editar').href = `formulario_produto.html?id=${produto.id}`;
-
-            const btnSituacao = document.getElementById('btn-situacao');
-            btnSituacao.textContent = disponivel ? 'Alterar para Vendido' : 'Reativar Produto';
-            btnSituacao.onclick = async function () {
-                const respostaSituacao = await produtoServico.alterarSituacao(produto.id);
-                if (tratarNaoAutorizado(respostaSituacao, sessao)) {
-                    return;
-                }
-                if (respostaSituacao.sucesso) {
-                    sessao.salvarMensagemFlash('sucesso', respostaSituacao.mensagem);
-                    window.location.href = 'produtos.html';
-                    return;
-                }
-                exibirAlerta('mensagens', 'perigo', respostaSituacao.mensagem || 'Erro ao alterar situação do produto.');
-            };
-
-            const btnExcluir = document.getElementById('btn-excluir');
-            btnExcluir.onclick = async function () {
-                if (!confirm('Deseja realmente excluir este produto?')) {
-                    return;
-                }
-                const respostaExclusao = await produtoServico.deletar(produto.id);
-                if (tratarNaoAutorizado(respostaExclusao, sessao)) {
-                    return;
-                }
-                if (respostaExclusao.sucesso) {
-                    sessao.salvarMensagemFlash('sucesso', respostaExclusao.mensagem);
-                    window.location.href = 'produtos.html';
-                    return;
-                }
-                exibirAlerta('mensagens', 'perigo', respostaExclusao.mensagem || 'Erro ao excluir o produto.');
-            };
-        } catch (erro) {
-            exibirAlerta('mensagens', 'perigo', 'Erro ao carregar os detalhes do produto.');
-        }
-    }
-
-    if (vendedor && idProduto) {
-        carregarDetalhes();
-    }
-</script>
+<script src="js/paginas/detalheProdutoPagina.js"></script>
 </body>
 </html>

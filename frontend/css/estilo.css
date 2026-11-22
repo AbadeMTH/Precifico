@@ -316,6 +316,118 @@ td small {
     border: 1px solid #d4dad6;
 }
 
+.selo-promocao {
+    background: #fff2d9;
+    color: #725119;
+    border: 1px solid #f7deb0;
+    margin-top: 4px;
+}
+
+.botao-promocao {
+    background: #fff6e5;
+    color: #725119;
+    border-color: #eed29a;
+}
+
+.botao-promocao:hover {
+    background: #ffebc7;
+}
+
+.preco-antigo {
+    text-decoration: line-through;
+    color: var(--cor-atenuada);
+    font-size: 12px;
+}
+
+.preco-promocional {
+    color: var(--cor-marca);
+}
+
+.campo-somente-leitura {
+    background: #f1f4f1;
+    color: var(--cor-atenuada);
+    cursor: not-allowed;
+    font-weight: 600;
+}
+
+.resumo-produto-compacto {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.resumo-produto-compacto .miniatura {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+}
+
+.resumo-de-para {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+.resumo-de-para .valor-de {
+    text-decoration: line-through;
+    color: var(--cor-atenuada);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.opcoes-brindes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.opcao-brinde {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #bccac1;
+    border-radius: 8px;
+    background: #fafbfa;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.opcao-brinde:hover {
+    border-color: var(--cor-marca);
+    background: #f2f7f4;
+}
+
+.opcao-brinde input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--cor-marca);
+    cursor: pointer;
+}
+
+.lista-brindes-selos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.selo-brinde {
+    background: #edf4ee;
+    color: var(--cor-marca);
+    border: 1px solid #c9dccd;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+}
+
 .painel-vazio {
     text-align: center;
     padding: 50px 20px;
@@ -357,6 +469,9 @@ td small {
         flex-direction: column;
     }
     .campos {
+        grid-template-columns: 1fr;
+    }
+    .opcoes-brindes {
         grid-template-columns: 1fr;
     }
     .linha-inteira {

@@ -1,6 +1,11 @@
 package br.com.precifico.model;
 
-public class Produto {
+import br.com.precifico.decorator.ProdutoDecoravel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Produto implements ProdutoDecoravel {
     private int id;
     private String codigoProduto;
     private String nome;
@@ -9,9 +14,12 @@ public class Produto {
     private SituacaoProduto situacao;
     private Vendedor vendedor;
     private Precificacao precificacao;
+    private List<TipoBrinde> brindes;
+    private String descricaoComBrindes;
 
     public Produto() {
         this.situacao = SituacaoProduto.DISPONIVEL;
+        this.brindes = new ArrayList<>();
     }
 
     public Produto(
@@ -24,6 +32,21 @@ public class Produto {
             Vendedor vendedor,
             Precificacao precificacao
     ) {
+        this(id, codigoProduto, nome, descricao, imagem, situacao, vendedor, precificacao, new ArrayList<>(), nome);
+    }
+
+    public Produto(
+            int id,
+            String codigoProduto,
+            String nome,
+            String descricao,
+            String imagem,
+            SituacaoProduto situacao,
+            Vendedor vendedor,
+            Precificacao precificacao,
+            List<TipoBrinde> brindes,
+            String descricaoComBrindes
+    ) {
         this.id = id;
         this.codigoProduto = codigoProduto;
         this.nome = nome;
@@ -32,6 +55,8 @@ public class Produto {
         this.situacao = situacao != null ? situacao : SituacaoProduto.DISPONIVEL;
         this.vendedor = vendedor;
         this.precificacao = precificacao;
+        this.brindes = brindes != null ? new ArrayList<>(brindes) : new ArrayList<>();
+        this.descricaoComBrindes = descricaoComBrindes != null ? descricaoComBrindes : nome;
     }
 
     public boolean pertenceA(Vendedor outroVendedor) {
@@ -87,6 +112,7 @@ public class Produto {
         this.nome = nome;
     }
 
+    @Override
     public String getDescricao() {
         return descricao;
     }
@@ -125,5 +151,22 @@ public class Produto {
 
     public void setPrecificacao(Precificacao precificacao) {
         this.precificacao = precificacao;
+    }
+
+    @Override
+    public List<TipoBrinde> getBrindes() {
+        return brindes != null ? brindes : new ArrayList<>();
+    }
+
+    public void setBrindes(List<TipoBrinde> brindes) {
+        this.brindes = brindes != null ? new ArrayList<>(brindes) : new ArrayList<>();
+    }
+
+    public String getDescricaoComBrindes() {
+        return descricaoComBrindes;
+    }
+
+    public void setDescricaoComBrindes(String descricaoComBrindes) {
+        this.descricaoComBrindes = descricaoComBrindes;
     }
 }

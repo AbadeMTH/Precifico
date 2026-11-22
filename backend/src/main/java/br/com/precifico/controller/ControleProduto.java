@@ -1,11 +1,13 @@
 package br.com.precifico.controller;
 
 import br.com.precifico.dto.ProdutoRequisicao;
+import br.com.precifico.dto.PromocaoRequisicao;
 import br.com.precifico.dto.RespostaApi;
 import br.com.precifico.dto.SimulacaoRequisicao;
 import br.com.precifico.model.Vendedor;
 import br.com.precifico.service.IPrecificacaoService;
 import br.com.precifico.service.IProdutoService;
+import br.com.precifico.service.IPromocaoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +27,16 @@ public class ControleProduto {
 
     private final IProdutoService produtoService;
     private final IPrecificacaoService precificacaoService;
+    private final IPromocaoService promocaoService;
 
-    public ControleProduto(IProdutoService produtoService, IPrecificacaoService precificacaoService) {
+    public ControleProduto(
+            IProdutoService produtoService,
+            IPrecificacaoService precificacaoService,
+            IPromocaoService promocaoService
+    ) {
         this.produtoService = produtoService;
         this.precificacaoService = precificacaoService;
+        this.promocaoService = promocaoService;
     }
 
     @GetMapping
@@ -108,6 +116,35 @@ public class ControleProduto {
     public ResponseEntity<RespostaApi> simular(@RequestBody SimulacaoRequisicao dados) {
         try {
             RespostaApi resposta = precificacaoService.simular(dados);
+            return montarResposta(resposta);
+        } catch (Exception erro) {
+            return montarErroInterno(erro);
+        }
+    }
+
+    @PutMapping("/{id}/promocao")
+    public ResponseEntity<RespostaApi> aplicarPromocao(
+            @PathVariable int id,
+            @RequestBody PromocaoRequisicao dados,
+            HttpServletRequest requisicaoHttp
+    ) {
+        try {
+            Vendedor vendedorLogado = obterVendedorLogado(requisicaoHttp);
+            RespostaApi resposta = promocaoService.aplicarPromocao(id, dados, vendedorLogado);
+            return montarResposta(resposta);
+        } catch (Exception erro) {
+            return montarErroInterno(erro);
+        }
+    }
+
+    @DeleteMapping("/{id}/promocao")
+    public ResponseEntity<RespostaApi> removerPromocao(
+            @PathVariable int id,
+            HttpServletRequest requisicaoHttp
+    ) {
+        try {
+            Vendedor vendedorLogado = obterVendedorLogado(requisicaoHttp);
+            RespostaApi resposta = promocaoService.removerPromocao(id, vendedorLogado);
             return montarResposta(resposta);
         } catch (Exception erro) {
             return montarErroInterno(erro);

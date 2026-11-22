@@ -10,5 +10,7 @@ public interface IPrecificacaoDAO {
 
     void atualizar(Precificacao precificacao) throws ClassNotFoundException, SQLException;
 
+    void atualizarPromocao(Precificacao precificacao) throws ClassNotFoundException, SQLException;
+
     Precificacao consultarPorProduto(Produto produto) throws ClassNotFoundException, SQLException;
 }

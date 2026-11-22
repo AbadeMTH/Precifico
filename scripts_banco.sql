@@ -30,6 +30,17 @@ CREATE TABLE IF NOT EXISTS precificacoes (
     valor_venda DOUBLE NOT NULL,
     custo_produto DOUBLE NOT NULL,
     lucro DOUBLE NOT NULL,
+    valor_promocional DECIMAL(10, 2) NULL,
+    percentual_desconto DECIMAL(5, 2) NULL,
     CONSTRAINT fk_precificacao_produto FOREIGN KEY (id_produto) 
+        REFERENCES produtos(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS produto_brindes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_produto INT NOT NULL,
+    tipo_brinde VARCHAR(30) NOT NULL,
+    CONSTRAINT uk_produto_brinde UNIQUE (id_produto, tipo_brinde),
+    CONSTRAINT fk_brinde_produto FOREIGN KEY (id_produto)
         REFERENCES produtos(id) ON DELETE CASCADE
 );

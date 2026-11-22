@@ -1,16 +1,18 @@
 class SessaoLocal {
-    constructor() {
+    constructor(storageLocal = localStorage, storageSessao = sessionStorage) {
+        this.storageLocal = storageLocal;
+        this.storageSessao = storageSessao;
         this.chaveVendedor = 'precifico_vendedor_logado';
         this.chaveFlash = 'precifico_mensagem_flash';
     }
 
     salvarVendedor(vendedor) {
-        localStorage.setItem(this.chaveVendedor, JSON.stringify(vendedor));
+        this.storageLocal.setItem(this.chaveVendedor, JSON.stringify(vendedor));
     }
 
     obterVendedor() {
         try {
-            const texto = localStorage.getItem(this.chaveVendedor);
+            const texto = this.storageLocal.getItem(this.chaveVendedor);
             return texto ? JSON.parse(texto) : null;
         } catch (erro) {
             return null;
@@ -18,20 +20,20 @@ class SessaoLocal {
     }
 
     limparVendedor() {
-        localStorage.removeItem(this.chaveVendedor);
+        this.storageLocal.removeItem(this.chaveVendedor);
     }
 
     salvarMensagemFlash(tipo, texto) {
-        sessionStorage.setItem(this.chaveFlash, JSON.stringify({ tipo, texto }));
+        this.storageSessao.setItem(this.chaveFlash, JSON.stringify({ tipo, texto }));
     }
 
     consumirMensagemFlash() {
         try {
-            const texto = sessionStorage.getItem(this.chaveFlash);
+            const texto = this.storageSessao.getItem(this.chaveFlash);
             if (!texto) {
                 return null;
             }
-            sessionStorage.removeItem(this.chaveFlash);
+            this.storageSessao.removeItem(this.chaveFlash);
             return JSON.parse(texto);
         } catch (erro) {
             return null;

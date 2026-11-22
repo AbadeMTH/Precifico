@@ -9,12 +9,14 @@ function criarAplicacao() {
     const sessao = new SessaoLocal();
     const authServico = typeof AuthServico !== 'undefined' ? new AuthServico(httpClient) : null;
     const produtoServico = typeof ProdutoServico !== 'undefined' ? new ProdutoServico(httpClient) : null;
+    const promocaoServico = typeof PromocaoServico !== 'undefined' ? new PromocaoServico(httpClient) : null;
 
     return {
         httpClient: httpClient,
         sessao: sessao,
         authServico: authServico,
-        produtoServico: produtoServico
+        produtoServico: produtoServico,
+        promocaoServico: promocaoServico
     };
 }
 
