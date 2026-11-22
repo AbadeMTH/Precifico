@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Precifico • Promover Produto</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header>
+    <div class="logotipo">Precifico</div>
+    <div class="cabecalho-usuario">
+        <span>Vendedor: <strong id="nome-vendedor-logado">...</strong></span>
+        <a href="produtos.html" class="botao botao-pequeno" style="text-decoration:none;">Meus Produtos</a>
+    </div>
+</header>
+
+<main>
+    <button class="voltar" onclick="window.location.href='produtos.html'">← Voltar para lista de produtos</button>
+
+    <div class="cabecalho-secao">
+        <div>
+            <h1>Promover Produto</h1>
+        </div>
+    </div>
+
+    <div id="mensagens"></div>
+
+    <form id="form-promocao" novalidate>
+        <div class="grade">
+            <div class="painel">
+                <div class="resumo-produto-compacto">
+                    <img id="produto-imagem" src="img/sem-foto.jpg" alt="Foto do produto" class="miniatura"
+                         onerror="this.onerror=null; this.src='img/sem-foto.jpg';">
+                    <div>
+                        <small id="produto-codigo">Código: —</small>
+                        <h2 id="produto-nome" style="margin: 4px 0 2px;">Carregando produto...</h2>
+                        <small id="produto-custo">Custo cadastrado: R$ —</small>
+                    </div>
+                </div>
+
+                <h2>Configuração da promoção (DE / PARA)</h2>
+                <div class="campos">
+                    <div class="campo linha-inteira">
+                        <label for="valor-atual">Valor atual (DE)</label>
+                        <input id="valor-atual" type="text" readonly class="campo-somente-leitura" value="R$ —">
+                        <small>Preço original cadastrado do produto. Este valor permanece imutável como referência do desconto.</small>
+                    </div>
+
+                    <div class="campo">
+                        <label for="valor-promocional">Novo valor (PARA) (R$) *</label>
+                        <input id="valor-promocional" name="valorPromocional" type="number" min="0.01" step="0.01" required
+                               placeholder="Ex.: 80.00">
+                        <small>Valor final pelo qual o produto será anunciado.</small>
+                    </div>
+
+                    <div class="campo">
+                        <label for="percentual-desconto">Desconto percentual (%) *</label>
+                        <input id="percentual-desconto" name="percentualDesconto" type="number" min="0.01" max="99.99" step="0.01" required
+                               placeholder="Ex.: 20">
+                        <small>Percentual de desconto aplicado sobre o valor atual (entre 0,01% e 99,99%).</small>
+                    </div>
+                </div>
+
+                <div id="feedback-validacao" class="aviso" style="margin-top: 20px;" aria-live="polite">
+                    Informe o novo valor promocional ou o percentual de desconto para visualizar o cálculo.
+                </div>
+            </div>
+
+            <div class="pilha">
+                <div class="painel cartao-preco">
+                    <div class="sobretitulo">PRÉVIA DO ANÚNCIO</div>
+                    <div class="resumo-de-para">
+                        <span class="valor-de" id="resumo-de">DE R$ —</span>
+                        <span class="selo selo-promocao" id="resumo-desconto" style="display: none;">-0%</span>
+                    </div>
+                    <div class="preco-destaque" id="resumo-para">R$ —</div>
+                    <p id="resumo-economia">Preencha o novo valor ou o percentual para simular a promoção.</p>
+
+                    <div class="metricas">
+                        <div>
+                            <small>Economia para o cliente</small>
+                            <strong id="metrica-economia">R$ —</strong>
+                        </div>
+                        <div>
+                            <small>Lucro promocional estimado</small>
+                            <strong id="metrica-lucro">R$ —</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button type="button" id="btn-remover-promocao" class="botao-perigo" style="display: none; margin-right: auto;">
+                Remover promoção
+            </button>
+            <button type="button" onclick="window.location.href='produtos.html'">Cancelar</button>
+            <button type="submit" id="btn-salvar-promocao" class="primario">Salvar promoção</button>
+        </div>
+    </form>
+</main>
+
+<script src="js/httpClient.js"></script>
+<script src="js/sessao.js"></script>
+<script src="js/produtoServico.js"></script>
+<script src="js/promocaoServico.js"></script>
+<script src="js/formatadores.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/guardaAutenticacao.js"></script>
+<script src="js/promocaoCalculadora.js"></script>
+<script src="js/app.js"></script>
+<script src="js/paginas/promoverProdutoPagina.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Precifico • Detalhes do Produto</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header>
+    <div class="logotipo">Precifico</div>
+    <div class="cabecalho-usuario">
+        <span>Vendedor: <strong id="nome-vendedor-logado">...</strong></span>
+        <a href="produtos.html" class="botao botao-pequeno" style="text-decoration:none;">Meus Produtos</a>
+    </div>
+</header>
+
+<main>
+    <button class="voltar" onclick="window.location.href='produtos.html'">← Voltar para lista de produtos</button>
+
+    <div id="mensagens"></div>
+
+    <div class="cabecalho-secao">
+        <div>
+            <h1 id="detalhe-nome">Carregando...</h1>
+        </div>
+        <span id="detalhe-selo" class="selo selo-disponivel" style="font-size: 13px; padding: 6px 14px;">
+            ...
+        </span>
+    </div>
+
+    <div class="grade">
+        <div class="painel">
+            <h2>Dados Gerais do Produto</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img id="detalhe-imagem" src="img/sem-foto.jpg" alt="Foto do produto" class="imagem-detalhe"
+                     onerror="this.onerror=null; this.src='img/sem-foto.jpg';">
+            </div>
+
+            <div class="campos" style="grid-template-columns: 1fr;">
+                <div>
+                    <label>Código do Produto</label>
+                    <div id="detalhe-codigo" style="font-size: 16px; font-weight: 600; padding: 8px 0;">—</div>
+                </div>
+
+                <div>
+                    <label>Descrição do Produto</label>
+                    <div id="detalhe-descricao" class="descricao-detalhe">—</div>
+                </div>
+
+                <div>
+                    <label>Brindes inclusos</label>
+                    <div id="detalhe-brindes" style="margin-top: 6px;">Nenhum brinde</div>
+                </div>
+
+                <div>
+                    <label>URL da Imagem</label>
+                    <small style="display:block; word-break: break-all; margin-top: 4px;">
+                        <a id="detalhe-url-imagem" href="#" target="_blank" style="color: var(--cor-marca);">—</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="pilha">
+            <div class="painel cartao-preco">
+                <h2>Análise Financeira</h2>
+
+                <div class="metricas" style="border-top: none; padding-top: 0; margin-top: 0;">
+                    <div>
+                        <small>Valor de Custo</small>
+                        <strong id="detalhe-custo" style="color: var(--cor-texto);">R$ 0,00</strong>
+                    </div>
+                    <div>
+                        <small>Preço de Venda Praticado</small>
+                        <strong id="detalhe-venda" style="color: var(--cor-marca);">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <div class="metricas">
+                    <div>
+                        <small>Lucro Financeiro (R$)</small>
+                        <strong id="detalhe-lucro">R$ 0,00</strong>
+                    </div>
+                    <div>
+                        <small>Margem Efetiva sobre Custo</small>
+                        <strong id="detalhe-margem">0,0%</strong>
+                    </div>
+                </div>
+
+                <div id="box-promocao" class="aviso atencao" style="display: none; margin-top: 20px;">
+                    <strong>Promoção ativa:</strong><br>
+                    <span id="detalhe-promocao"></span>
+                </div>
+
+                <div id="box-diagnostico" class="aviso sucesso" style="margin-top: 24px;">
+                    <strong>Diagnóstico Comercial:</strong><br>
+                    <span id="detalhe-diagnostico">...</span>
+                </div>
+            </div>
+
+            <div class="painel">
+                <h2>Ações do Produto</h2>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a id="btn-editar" href="#" class="botao botao-primario" style="justify-content: center; text-decoration: none;">
+                        Editar este produto
+                    </a>
+                    <a id="btn-promover" href="#" class="botao botao-promocao" style="justify-content: center; text-decoration: none;">
+                        Promover produto
+                    </a>
+                    <button id="btn-situacao" type="button" class="botao" style="justify-content: center;">
+                        Alterar situação
+                    </button>
+                    <button id="btn-excluir" type="button" class="botao botao-perigo" style="justify-content: center;">
+                        Excluir produto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="js/httpClient.js"></script>
+<script src="js/sessao.js"></script>
+<script src="js/produtoServico.js"></script>
+<script src="js/formatadores.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/guardaAutenticacao.js"></script>
+<script src="js/brindesUi.js"></script>
+<script src="js/app.js"></script>
+<script src="js/paginas/detalheProdutoPagina.js"></script>
+</body>
+</html>

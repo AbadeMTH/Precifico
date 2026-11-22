@@ -11,5 +11,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_dados:/var/lib/mysql
+      - ./scripts_banco.sql:/docker-entrypoint-initdb.d/init.sql
 volumes:
   mysql_dados:

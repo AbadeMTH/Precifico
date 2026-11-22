@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Precifico • Novo Produto</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header>
+    <div class="logotipo">Precifico</div>
+    <div class="cabecalho-usuario">
+        <span>Vendedor: <strong id="nome-vendedor-logado">...</strong></span>
+        <a href="produtos.html" class="botao botao-pequeno" style="text-decoration:none;">Meus Produtos</a>
+    </div>
+</header>
+
+<main>
+    <button class="voltar" onclick="window.location.href='produtos.html'">← Voltar para lista de produtos</button>
+
+    <div class="cabecalho-secao">
+        <div>
+            <h1 id="titulo-pagina">Novo Produto</h1>
+        </div>
+    </div>
+
+    <div id="mensagens"></div>
+
+    <form id="form-produto" novalidate>
+        <input type="hidden" id="id-produto" name="id" value="">
+
+        <div class="grade">
+            <div class="painel">
+                <h2>1. Informações do produto</h2>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="codigoProduto">Código / SKU *</label>
+                        <input id="codigoProduto" name="codigoProduto" required maxlength="50"
+                               placeholder="Ex.: PRD-101" autofocus>
+                    </div>
+
+                    <div class="campo">
+                        <label for="situacao">Situação</label>
+                        <select id="situacao" name="situacao">
+                            <option value="DISPONIVEL">Disponível</option>
+                            <option value="VENDIDO">Vendido</option>
+                        </select>
+                    </div>
+
+                    <div class="campo linha-inteira">
+                        <label for="nome">Nome do produto *</label>
+                        <input id="nome" name="nome" required maxlength="100"
+                               placeholder="Ex.: Roda de carro esportiva aro 17">
+                    </div>
+
+                    <div class="campo linha-inteira">
+                        <label for="descricao">Descrição detalhada *</label>
+                        <textarea id="descricao" name="descricao" required maxlength="2000"
+                                  placeholder="Descreva as características, estado de conservação e especificações."></textarea>
+                    </div>
+
+                    <div class="campo linha-inteira">
+                        <label for="imagem">URL da foto do produto (JPEG, PNG, WebP) *</label>
+                        <input id="imagem" name="imagem" type="url" required maxlength="500"
+                               placeholder="https://exemplo.com/fotos/roda.jpg">
+                        <small>Informe o link direto para a imagem do produto na internet.</small>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 32px;">2. Custo e percentual de lucro desejado</h2>
+                <div class="campos">
+                    <div class="campo">
+                        <label for="custo">Valor de custo (R$) *</label>
+                        <input id="custo" name="custo" type="number" min="0.01" step="0.01" required
+                               placeholder="Ex.: 800.00">
+                        <small>Valor de compra ou custo de fabricação.</small>
+                    </div>
+
+                    <div class="campo">
+                        <label for="margem">Acréscimo sobre o custo (%) *</label>
+                        <input id="margem" type="number" min="0" step="0.01" required
+                               placeholder="Ex.: 25" value="25">
+                        <small>Percentual de lucro desejado sobre o valor de custo.</small>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 32px;">Brindes</h2>
+                <div class="campo">
+                    <small style="margin-bottom: 6px;">Selecione os brindes que acompanharão este produto (opcional).</small>
+                    <div class="opcoes-brindes" id="secao-brindes"></div>
+                </div>
+            </div>
+
+            <div class="pilha">
+                <div class="painel cartao-preco">
+                    <div class="sobretitulo">SUGESTÃO AUTOMÁTICA</div>
+                    <div class="preco-destaque" id="sugestao">R$ —</div>
+                    <p id="formula">Preencha o custo e o percentual para calcular a sugestão.</p>
+                    <button type="button" id="usar-preco" class="botao" style="width: 100%;">Usar preço sugerido</button>
+                    <small style="display:block; margin-top: 14px; color: var(--cor-atenuada);">Fórmula: Custo + (Custo × Percentual ÷ 100)</small>
+                </div>
+
+                <div class="painel">
+                    <h2>3. Defina seu preço de venda</h2>
+                    <div class="campo">
+                        <label for="venda">Preço de venda final (R$) *</label>
+                        <input id="venda" name="valorVenda" type="number" min="0.01" step="0.01" required
+                               placeholder="Ex.: 1000.00">
+                        <small>Você pode aceitar a sugestão automática ou definir livremente o preço final.</small>
+                    </div>
+
+                    <div class="metricas">
+                        <div>
+                            <small>Lucro estimado</small>
+                            <strong id="lucro">R$ —</strong>
+                        </div>
+                        <div>
+                            <small>Resultado sobre o custo</small>
+                            <strong id="margem-efetiva">—%</strong>
+                        </div>
+                    </div>
+
+                    <div id="aviso-preco" class="aviso" aria-live="polite">
+                        Seu resultado aparecerá aqui.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button type="button" onclick="window.location.href='produtos.html'">Cancelar</button>
+            <button type="submit" id="btn-salvar" class="primario">Salvar produto</button>
+        </div>
+    </form>
+</main>
+
+<script src="js/httpClient.js"></script>
+<script src="js/sessao.js"></script>
+<script src="js/produtoServico.js"></script>
+<script src="js/formatadores.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/guardaAutenticacao.js"></script>
+<script src="js/brindesUi.js"></script>
+<script src="js/app.js"></script>
+<script src="js/paginas/formularioProdutoPagina.js"></script>
+</body>
+</html>
