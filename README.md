@@ -1,10 +1,10 @@
-# Precifico
+# Precifico 🏷️
 
 Sistema web para auxiliar vendedores no gerenciamento, na precificação e na divulgação promocional de produtos, composto por uma **API REST em Spring Boot** e um **frontend em HTML, CSS e JavaScript puro**, estruturados com princípios **SOLID** e padrões de projeto (**DAO**, **Builder** e **Decorator**).
 
 ---
 
-## Funcionalidades
+## 📌 Funcionalidades
 
 - Cadastro, login e logout de vendedores (autenticação por sessão `HttpSession`).
 - Cadastro, listagem, visualização detalhada, edição e exclusão de produtos vinculados ao vendedor logado.
@@ -17,7 +17,7 @@ Sistema web para auxiliar vendedores no gerenciamento, na precificação e na di
 
 ---
 
-## Tecnologias
+## 🛠️ Tecnologias Utilizadas
 
 - **Backend:** Java 17, Spring Boot 3.4.3 (Spring Web + Tomcat embutido), Maven, JDBC puro e MySQL Connector/J
 - **Testes Automatizados:** Spring Boot Starter Test (JUnit 5, Mockito, AssertJ, MockMvc) e banco em memória H2 (`<scope>test</scope>`)
@@ -130,10 +130,28 @@ Precificov1/
 
 ---
 
-## Como Rodar Localmente
+## 📋 Pré-requisitos
+
+Antes de iniciar, certifique-se de ter instalado em sua máquina:
+
+1. **Git**: Para clonar o repositório ([Download Git](https://git-scm.com/)).
+2. **Java JDK**: Versão 8, 11, 17 ou superior instalada e configurada nas variáveis de ambiente (`JAVA_HOME`).
+3. **Apache Tomcat**: Versão **8.5.x** ou **9.x** ([Download Tomcat](https://tomcat.apache.org/download-90.cgi)).
+   > **Nota importante**: Como o projeto utiliza a especificação `javax.servlet`, utilize o Tomcat 8.5 ou 9. O Tomcat 10+ utiliza o pacote `jakarta.servlet` e requer adaptação.
+4. **Docker & Docker Compose** *(Recomendado para o banco de dados)*: [Download Docker Desktop](https://www.docker.com/products/docker-desktop/).
+   *(Caso não use Docker, é necessário ter o MySQL Server 8.0 instalado localmente).*
+5. **IDE de sua preferência**: IntelliJ IDEA (recomendada), Eclipse IDE for Enterprise Java ou NetBeans.
+
+---
+
+## 🚀 Passo a Passo: Clonar e Rodar
 
 ### 1. Clonar o Repositório
+
+Abra o terminal na pasta onde deseja salvar o projeto e execute:
+
 ```bash
+# Clonar o repositório via HTTPS
 git clone https://github.com/AbadeMTH/Precifico.git
 cd Precifico
 ```
